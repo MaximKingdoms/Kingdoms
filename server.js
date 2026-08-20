@@ -8,7 +8,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-cors: {origin: "https://kingdomsofultimates.com",
+cors: {origin: "https://www.kingdomsofultimates.com",
        methods: ["GET", "POST"]
 }
 });
@@ -47,7 +47,7 @@ io.on('connection', (socket) => {
       x: data.mapxxx || 0,
       y: data.mapyyy || 0
     };
-  console.log("Données des joueurs récupérées :", data.nomjoueur," ",data.x," ",data.y);
+  console.log("Données des joueurs récupérées :", data.nomjoueur," ",data.mapxxx," ",data.mapyyy);
 
   });
 
@@ -99,7 +99,7 @@ try {
 function sauvegarderJoueur(joueur) {
   if (!joueur) return;
   
-  const sql = "UPDATE HeroesCreated SET X = 500, Y = 500, XY = joueur.x, Yx = joueur.y WHERE WHERE id = joueur";
+  const sql = "UPDATE HeroesCreated SET X = 500, Y = 500, XY = joueur.x, Yx = joueur.y WHERE id = joueur";
   // Remplacez 'pool' par le nom de votre variable de pool MySQL Hostinger
   pool.query(sql, [joueur.x, joueur.y, joueur.id_bdd], (err) => {
     if (err) console.error("Erreur de sauvegarde Hostinger:", err);
@@ -108,7 +108,3 @@ function sauvegarderJoueur(joueur) {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Serveur actif sur le port ${PORT}`));
-
-app.listen(3000, () => {
-    console.log(`Serveur démarré sur le port ${PORT}`);
-});
