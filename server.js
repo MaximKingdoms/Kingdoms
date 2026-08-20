@@ -47,6 +47,8 @@ io.on('connection', (socket) => {
       x: data.mapxxx || 0,
       y: data.mapyyy || 0
     };
+  console.log("Données des joueurs récupérées :", id_bdd," ",x," ",y);
+
   });
 
   // COMMENT LE SERVEUR OBTIENT LA POSITION :
