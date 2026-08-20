@@ -7,7 +7,7 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-cors: {origin: "https://www.kingdoms.com/",
+cors: {origin: "https://kingdomsofultimates.com",
        methods: ["GET", "POST"]
 }
 });
