@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('mysql2/promise');
 
 const express = require('express');
 const http = require('http');
@@ -42,9 +43,9 @@ io.on('connection', (socket) => {
   // À la connexion, on peut lier le socket.id à l'ID du compte joueur (ex: id: 42)
   socket.on('playerfound', (data) => {
     joueursEnLigne[socket.id] = {
-      id_bdd: data.userId, // L'ID unique du joueur dans votre base Hostinger
-      x: data.startX || 0,
-      y: data.startY || 0
+      id_bdd: data.nomjoueur, // L'ID unique du joueur dans votre base Hostinger
+      x: data.mapxxx || 0,
+      y: data.mapyyy || 0
     };
   });
 
@@ -70,10 +71,27 @@ setInterval(() => {
   console.log("Sauvegarde automatique des positions chez Hostinger...");
   
   // On boucle sur tous les joueurs actuellement connectés en RAM
+    console.log("Chargement des joueurs");
+    loaderjoueur();
   Object.values(joueursEnLigne).forEach(joueur => {
     sauvegarderJoueur(joueur);
   });
 }, 60000); // 60 000 ms = 1 minute
+
+async function loaderjoueur() {
+try {
+  // Votre connexion existante (ici nommée 'connection')
+  // Remplacer 'nom_de_la_table' par le vrai nom de votre table
+  const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
+  
+  // 'rows' contient un tableau avec les résultats
+  console.log("Données des joueurs récupérées :", rows);
+  
+} catch (error) {
+  console.error("Erreur lors de la requête SQL :", error);
+}
+}
+
 
 // Fonction qui exécute la requête SQL vers Hostinger
 function sauvegarderJoueur(joueur) {
