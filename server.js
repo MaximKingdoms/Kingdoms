@@ -7,8 +7,10 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-cors: {origin: "*"}});
-
+cors: {origin: "https://www.kingdoms.com/",
+       methods: ["GET", "POST"]
+}
+});
 // Render injectera automatiquement la variable process.env.PORT
 
 
