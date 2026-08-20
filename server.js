@@ -32,20 +32,6 @@ const pool = mysql.createPool({
 // 1. LE STOCKAGE EN RAM : Le serveur garde les positions ici en continu
 const joueursEnLigne = {}; 
 
-io.on('connection', (socket) => {
-  console.log(`Joueur connecté : ${socket.id}`);
-
-  // À la connexion, on peut lier le socket.id à l'ID du compte joueur (ex: id: 42)
-  socket.on('playerfound', (data) => {
-    joueursEnLigne[socket.id] = {
-      id_bdd: data.nomjoueur, // L'ID unique du joueur dans votre base Hostinger
-      x: data.mapxxx || 0,
-      y: data.mapyyy || 0
-    };
-  console.log("Données des joueurs récupérées :", data.nomjoueur," ",data.mapxxx," ",data.mapyyy);
-
-  });
-
 // Conteneur de tous les joueurs connectÃ©s
 const players = {};
 
