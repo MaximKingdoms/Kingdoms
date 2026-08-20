@@ -28,11 +28,6 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
-const gameState = {
-  players: {},
-  monsters: {}
-}
-
 
 // 1. LE STOCKAGE EN RAM : Le serveur garde les positions ici en continu
 const joueursEnLigne = {}; 
@@ -51,20 +46,55 @@ io.on('connection', (socket) => {
 
   });
 
-  // COMMENT LE SERVEUR OBTIENT LA POSITION :
-  // Le client (le jeu) va envoyer cet événement "playerMove" en boucle
-  socket.on('playerMove', (position) => {
-    if (joueursEnLigne[socket.id]) {
-      // Le serveur intercepte et met à jour la RAM instantanément
-      joueursEnLigne[socket.id].x = position.x;
-      joueursEnLigne[socket.id].y = position.y;
+// Conteneur de tous les joueurs connectÃ©s
+const players = {};
+
+io.on('connection', (socket) => {
+  console.log('Un utilisateur tente de se connecter :', socket.id);
+
+  // 1. Ã‰couter quand le client envoie ses informations initiales
+  socket.on('playerfound', (data) => {
+    console.log(`Joueur connectÃ© : ${data.nomjoueur}`);
+
+    // On structure l'objet exactement comme ton ancien fichier 'Loadingspecificplayer.php'
+    // Tu peux ajuster la classe ou les points de vie par dÃ©faut si nÃ©cessaire
+    players[socket.id] = {
+      id: socket.id,
+      Nomhero: data.nomjoueur,
+      XY: data.mapxxx,      // Position X initiale
+      Yx: data.mapyyy,      // Position Y initiale
+      Currenthp: data.actualhp,       // Points de vie par dÃ©faut
+      Class: data.actualclass      // Classe par dÃ©faut (changera si tu l'envoies dans le emit)
+    };
+
+    // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
+    socket.emit('currentPlayers', players);
+
+    // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
+    socket.broadcast.emit('newPlayer', players[socket.id]);
+  });
+
+  // 2. Écouter les mouvements du joueur en temps réel
+  socket.on('playerMovement', (movementData) => {
+    if (players[socket.id]) {
+      // Met Ã  jour la position sur le serveur
+      players[socket.id].XY = movementData.XY;
+      players[socket.id].Yx = movementData.Yx;
+
+      // Diffuse la nouvelle position aux autres joueurs
+      socket.broadcast.emit('playerMoved', players[socket.id]);
     }
   });
 
+  // 3. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
-    // Optionnel : Sauvegarder immédiatement le joueur chez Hostinger quand il quitte
-    sauvegarderJoueur(joueursEnLigne[socket.id]);
-    delete joueursEnLigne[socket.id];
+    console.log('Joueur déconnecté :', socket.id);
+    
+    // Si le joueur existait dans notre liste, on le supprime et on prévient le client
+    if (players[socket.id]) {
+      delete players[socket.id];
+      io.emit('disconnectPlayer', socket.id);
+    }
   });
 });
 
