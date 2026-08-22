@@ -62,7 +62,14 @@ io.on('connection', (socket) => {
 
        // 2. Écouter les mouvements du joueur en temps réel
   socket.on('hitfromplayer', (hitdata) => {
-           
+           function for_each(players) {
+  for (let key in players) {
+    if (players[key].Nomhero === hitdata.playername) {
+      players[key].Currenthp = hitdata.playerhp;
+    }
+  }
+}
+
            players[socket.id].Currenthp = hitdata.playerhp;
     socket.broadcast.emit('informofhit', {playernametouched: hitdata.playername, playerhptouched: hitdata.playerhp});
       // Met Ã  jour la position sur le serveur
