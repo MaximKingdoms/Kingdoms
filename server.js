@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     };
 
     // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
-    socket.broadcast.emit('currentPlayers', players);
+    socket.emit('currentPlayers', players);
          console.log(players);
 
     // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
