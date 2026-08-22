@@ -125,7 +125,7 @@ try {
   
   // 'rows' contient un tableau avec les résultats
 console.log("Données des joueurs récupérées :", rows);
-O  
+
 } catch (error) {
   console.error("Erreur lors de la requête SQL :", error);
 }
