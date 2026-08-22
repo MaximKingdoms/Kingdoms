@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
            
          socket.emit('currentPlayers', players);
          console.log(players[socket.id]);
-    }
+    });
     // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
     socket.broadcast.emit('newPlayer', players[socket.id]);
   });
