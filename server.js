@@ -119,25 +119,10 @@ setInterval(() => {
   
   // On boucle sur tous les joueurs actuellement connectés en RAM
     console.log("Chargement des joueurs");
-    loaderjoueur();
   Object.values(joueursEnLigne).forEach(joueur => {
     sauvegarderJoueur(joueur);
   });
 }, 60000); // 60 000 ms = 1 minute
-
-async function loaderjoueur() {
-try {
-  // Votre connexion existante (ici nommée 'connection')
-  // Remplacer 'nom_de_la_table' par le vrai nom de votre table
- // const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
-
-  // 'rows' contient un tableau avec les résultats
-console.log("Données des joueurs récupérées :", rows);
-
-} catch (error) {
-  console.error("Erreur lors de la requête SQL :", error);
-}
-}
 
 
 // Fonction qui exécute la requête SQL vers Hostinger
