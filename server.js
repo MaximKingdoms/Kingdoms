@@ -64,11 +64,10 @@ io.on('connection', (socket) => {
   socket.on('hitfromplayer', (hitdata) => {
 players.forEach(player => {
   if (player.Nomhero === hitdata.playername) {
-    player.Currenthpn = hitdata.playerhp;
+    player.Currenthp = hitdata.playerhp;
   }
   }
 
-           players[socket.id].Currenthp = hitdata.playerhp;
     socket.broadcast.emit('informofhit', {playernametouched: hitdata.playername, playerhptouched: hitdata.playerhp});
       // Met Ã  jour la position sur le serveur
 //      players[socket.id].hp = movementData.XY;
