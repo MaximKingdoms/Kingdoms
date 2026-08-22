@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     };
 
     // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
-    socket.emit('currentPlayers', players);
+    socket.broadcast.emit('currentPlayers', players);
          console.log(players);
 
     // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
@@ -122,8 +122,8 @@ try {
   const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
   
   // 'rows' contient un tableau avec les résultats
-//  console.log("Données des joueurs récupérées :", rows);
-  
+console.log("Données des joueurs récupérées :", rows);
+O  
 } catch (error) {
   console.error("Erreur lors de la requête SQL :", error);
 }
