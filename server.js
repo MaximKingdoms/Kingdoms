@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
 
        // 2. Écouter les mouvements du joueur en temps réel
   socket.on('hitfromplayer', (hitdata) => {
-players.forEach(player => {
+Object.values(players).forEach(player => {
   if (player.Nomhero === hitdata.playername) {
     player.Currenthp = hitdata.playerhp;
   }
