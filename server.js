@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
     console.log("Liste des joueurs envoyée :", listeJoueurs);
     
     // Envoyer la liste uniquement au joueur qui la demande
-    socket.emit('allPlayers', listeJoueurs); 
+    socket.emit('currentPlayers', listeJoueurs); 
   });
 
   // 3. Gestion des dégâts / coups reçus
