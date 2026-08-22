@@ -67,6 +67,7 @@ players.forEach(player => {
     player.Currenthp = hitdata.playerhp;
   }
   }
+                );
 
     socket.broadcast.emit('informofhit', {playernametouched: hitdata.playername, playerhptouched: hitdata.playerhp});
       // Met Ã  jour la position sur le serveur
