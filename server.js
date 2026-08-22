@@ -55,6 +55,7 @@ io.on('connection', (socket) => {
 
     // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
     socket.on('askplayers', (askreceived) => {
+             const [rows] = players;  
            
          socket.emit('currentPlayers', players);
          console.log(players[socket.id]);
@@ -122,7 +123,7 @@ try {
   // Votre connexion existante (ici nommée 'connection')
   // Remplacer 'nom_de_la_table' par le vrai nom de votre table
  // const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
-  const [rows] = players;  
+
   // 'rows' contient un tableau avec les résultats
 console.log("Données des joueurs récupérées :", rows);
 
