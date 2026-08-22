@@ -63,7 +63,8 @@ io.on('connection', (socket) => {
        // 2. Écouter les mouvements du joueur en temps réel
   socket.on('hitfromplayer', (hitdata) => {
     if (players[socket.id]) {
-           players[socket.id].Currenthp = hitdata[.Currenthp;
+           console
+           players[socket.id].Currenthp = hitdata.Currenthp;
     socket.broadcast.emit('informofhit', hitdata});
       // Met Ã  jour la position sur le serveur
 //      players[socket.id].hp = movementData.XY;
@@ -117,7 +118,7 @@ try {
   const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
   
   // 'rows' contient un tableau avec les résultats
-  console.log("Données des joueurs récupérées :", rows);
+//  console.log("Données des joueurs récupérées :", rows);
   
 } catch (error) {
   console.error("Erreur lors de la requête SQL :", error);
