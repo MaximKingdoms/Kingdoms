@@ -80,7 +80,6 @@ io.on('connection', (socket) => {
     if (players[socket.id]) {
       players[socket.id].XY = movementData.XY;
       players[socket.id].Yx = movementData.Yx;
-      players[socket.id].Currenthp = movementData.Currenthp;
 
       // Diffuse la nouvelle position aux autres joueurs
       socket.broadcast.emit('playerMoved', players[socket.id]);
