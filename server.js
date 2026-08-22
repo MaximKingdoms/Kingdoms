@@ -45,7 +45,7 @@ io.on('connection', (socket) => {
     // On structure l'objet exactement comme ton ancien fichier 'Loadingspecificplayer.php'
     // Tu peux ajuster la classe ou les points de vie par dÃ©faut si nÃ©cessaire
     players[socket.id] = {
-      id: socket.id,
+      id: data.id,
       Nomhero: data.nomjoueur,
       XY: data.mapxxx,      // Position X initiale
       Yx: data.mapyyy,      // Position Y initiale
