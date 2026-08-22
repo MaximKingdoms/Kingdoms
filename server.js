@@ -8,12 +8,11 @@ const { Server } = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-cors: {origin: "https://www.kingdomsofultimates.com",
-       methods: ["GET", "POST"]
-}
+  cors: {
+    origin: "https://www.kingdomsofultimates.com",
+    methods: ["GET", "POST"]
+  }
 });
-// Render injectera automatiquement la variable process.env.PORT
-
 
 const mysql = require('mysql2');
 
@@ -24,68 +23,61 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 10, // Nombre maximum de connexions simultanées
+  connectionLimit: 10,
   queueLimit: 0
 });
 
-
-// 1. LE STOCKAGE EN RAM : Le serveur garde les positions ici en continu
+// Le stockage en RAM
 const joueursEnLigne = {}; 
-
-// Conteneur de tous les joueurs connectÃ©s
 const players = {};
 
 io.on('connection', (socket) => {
   console.log('Un utilisateur tente de se connecter :', socket.id);
 
-  // 1. Ã‰couter quand le client envoie ses informations initiales
+  // 1. Initialisation du joueur
   socket.on('playerfound', (data) => {
-    console.log(`Joueur connectÃ© : ${data.nomjoueur}`);
+    console.log(`Joueur connecté : ${data.nomjoueur}`);
 
-    // On structure l'objet exactement comme ton ancien fichier 'Loadingspecificplayer.php'
-    // Tu peux ajuster la classe ou les points de vie par dÃ©faut si nÃ©cessaire
     players[socket.id] = {
       id: data.id,
       Nomhero: data.nomjoueur,
-      XY: data.mapxxx,      // Position X initiale
-      Yx: data.mapyyy,      // Position Y initiale
-      Currenthp: data.actualhp,       // Points de vie par dÃ©faut
-      Class: data.actualclass      // Classe par dÃ©faut (changera si tu l'envoies dans le emit)
+      XY: data.mapxxx,      
+      Yx: data.mapyyy,      
+      Currenthp: data.actualhp,       
+      Class: data.actualclass      
     };
 
-    // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
-    socket.on('askplayers', (askreceived) => {  
-       // On cherche la propriété de "players" qui est un tableau
-           const listeJoueurs = Object.values(players);
-
-// 'listeJoueurs' est maintenant un vrai tableau : [ {id: ..., Nomhero: ...}, {id: ..., Nomhero: ...} ]
-console.log(listeJoueurs);
-
-    // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
+    // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
     socket.broadcast.emit('newPlayer', players[socket.id]);
   });
 
-       // 2. Écouter les mouvements du joueur en temps réel
-  socket.on('hitfromplayer', (hitdata) => {
-Object.values(players).forEach(player => {
-  if (player.Nomhero === hitdata.playername) {
-    player.Currenthp = hitdata.playerhp;
-  }
-  }
-                );
-
-    socket.broadcast.emit('informofhit', {playernametouched: hitdata.playername, playerhptouched: hitdata.playerhp});
-      // Met Ã  jour la position sur le serveur
-//      players[socket.id].hp = movementData.XY;
-  //    players[socket.id].Yx = movementData.Yx;
-
-      // Diffuse la nouvelle position aux autres joueurs
+  // 2. Demande de la liste complète des joueurs
+  socket.on('askplayers', (askreceived) => {  
+    const listeJoueurs = Object.values(players);
+    console.log("Liste des joueurs envoyée :", listeJoueurs);
+    
+    // Envoyer la liste uniquement au joueur qui la demande
+    socket.emit('allPlayers', listeJoueurs); 
   });
 
-  // 2. Écouter les mouvements du joueur en temps réel
+  // 3. Gestion des dégâts / coups reçus
+  socket.on('hitfromplayer', (hitdata) => {
+    Object.values(players).forEach(player => {
+      if (player.Nomhero === hitdata.playername) {
+        player.Currenthp = hitdata.playerhp;
+      }
+    });
+    
+    // Diffuser l'information du coup à tout le monde
+    socket.broadcast.emit('informofhit', {
+      playernametouched: hitdata.playername, 
+      playerhptouched: hitdata.playerhp
+    });
+  });
+
+  // 4. Écouter les mouvements du joueur en temps réel
   socket.on('playerMovement', (movementData) => {
     if (players[socket.id]) {
-      // Met Ã  jour la position sur le serveur
       players[socket.id].XY = movementData.XY;
       players[socket.id].Yx = movementData.Yx;
       players[socket.id].Currenthp = movementData.Currenthp;
@@ -95,11 +87,10 @@ Object.values(players).forEach(player => {
     }
   });
 
-  // 3. Gérer la déconnexion d'un joueur
+  // 5. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
     console.log('Joueur déconnecté :', socket.id);
     
-    // Si le joueur existait dans notre liste, on le supprime et on prévient le client
     if (players[socket.id]) {
       delete players[socket.id];
       io.emit('disconnectPlayer', socket.id);
@@ -107,24 +98,22 @@ Object.values(players).forEach(player => {
   });
 });
 
-// 2. LA SAUVEGARDE TOUTES LES MINUTES CHEZ HOSTINGER
+// Sauvegarde automatique toutes les minutes
 setInterval(() => {
   console.log("Sauvegarde automatique des positions chez Hostinger...");
+  console.log("Chargement des joueurs");
   
-  // On boucle sur tous les joueurs actuellement connectés en RAM
-    console.log("Chargement des joueurs");
+  // Note : Assurez-vous d'alimenter "joueursEnLigne" ou changez cette ligne par Object.values(players)
   Object.values(joueursEnLigne).forEach(joueur => {
     sauvegarderJoueur(joueur);
   });
-}, 60000); // 60 000 ms = 1 minute
+}, 60000); 
 
-
-// Fonction qui exécute la requête SQL vers Hostinger
 function sauvegarderJoueur(joueur) {
   if (!joueur) return;
   
-  const sql = "UPDATE HeroesCreated SET X = 500, Y = 500, XY = joueur.x, Yx = joueur.y WHERE id = joueur";
-  // Remplacez 'pool' par le nom de votre variable de pool MySQL Hostinger
+  // Correction de la requête pour utiliser les placeholders de sécurité (?) de mysql2
+  const sql = "UPDATE HeroesCreated SET XY = ?, Yx = ? WHERE id = ?";
   pool.query(sql, [joueur.x, joueur.y, joueur.id_bdd], (err) => {
     if (err) console.error("Erreur de sauvegarde Hostinger:", err);
   });
