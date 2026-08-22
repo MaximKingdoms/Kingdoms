@@ -79,7 +79,7 @@ io.on('connection', (socket) => {
       // Met Ã  jour la position sur le serveur
       players[socket.id].XY = movementData.XY;
       players[socket.id].Yx = movementData.Yx;
-      players[sokcet.id].Currenthp = movementData.Currenthp;
+      players[socket.id].Currenthp = movementData.Currenthp;
 
       // Diffuse la nouvelle position aux autres joueurs
       socket.broadcast.emit('playerMoved', players[socket.id]);
