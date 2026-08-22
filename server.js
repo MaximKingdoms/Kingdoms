@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
   socket.on('hitfromplayer', (hitdata) => {
     if (players[socket.id]) {
            players[hitdata.id].Currenthp = hitdata.Currenthp;
-    socket.broadcast.emit('informofhit', players[hitdata.id});
+    socket.broadcast.emit('informofhit', hitdata});
       // Met Ã  jour la position sur le serveur
 //      players[socket.id].hp = movementData.XY;
   //    players[socket.id].Yx = movementData.Yx;
