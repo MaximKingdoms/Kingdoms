@@ -122,7 +122,7 @@ try {
   // Votre connexion existante (ici nommée 'connection')
   // Remplacer 'nom_de_la_table' par le vrai nom de votre table
   const [rows] = await pool.promise().query('SELECT XY, Yx FROM HeroesCreated');
-  
+  const [rows] = players;  
   // 'rows' contient un tableau avec les résultats
 console.log("Données des joueurs récupérées :", rows);
 
