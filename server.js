@@ -56,17 +56,11 @@ io.on('connection', (socket) => {
     // Envoyer la liste de TOUS les joueurs existants uniquement Ã  ce nouveau joueur
     socket.on('askplayers', (askreceived) => {  
        // On cherche la propriété de "players" qui est un tableau
-const playersArray = Object.values(players).find(val => Array.isArray(val));
+           const listeJoueurs = Object.values(players);
 
-if (playersArray) {
-  // Vous avez maintenant votre liste d'objets prête à être parcourue
-  playersArray.forEach(player => console.log(player));
-} else {
-  console.log("Aucun array d'objets trouvé dans l'objet players.");
-}
-         socket.emit('currentPlayers', players);
-         console.log(players[socket.id]);
-    });
+// 'listeJoueurs' est maintenant un vrai tableau : [ {id: ..., Nomhero: ...}, {id: ..., Nomhero: ...} ]
+console.log(listeJoueurs);
+
     // Diffuser les infos de ce NOUVEAU joueur Ã  tous les autres dÃ©jÃ  connectÃ©s
     socket.broadcast.emit('newPlayer', players[socket.id]);
   });
