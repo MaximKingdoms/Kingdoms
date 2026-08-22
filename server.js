@@ -62,16 +62,14 @@ io.on('connection', (socket) => {
 
        // 2. Écouter les mouvements du joueur en temps réel
   socket.on('hitfromplayer', (hitdata) => {
-    if (players[socket.id]) {
            
-           players[socket.id].Currenthp = hitdata[1];
-    socket.broadcast.emit('informofhit', hitdata});
+           players[socket.id].Currenthp = hitdata.playerhp;
+    socket.broadcast.emit('informofhit', {playernametouched: hitdata.playername, playerhptouched: hitdata.playerhp});
       // Met Ã  jour la position sur le serveur
 //      players[socket.id].hp = movementData.XY;
   //    players[socket.id].Yx = movementData.Yx;
 
       // Diffuse la nouvelle position aux autres joueurs
-    }
   });
 
   // 2. Écouter les mouvements du joueur en temps réel
