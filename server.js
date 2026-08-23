@@ -75,6 +75,34 @@ io.on('connection', (socket) => {
     });
   });
 
+  // 1. Tableau global pour stocker tous les missiles actifs
+const listeMissiles = [];
+
+// 2. Écoute de l'événement à chaque tir
+socket.on('missile', (data) => {
+    // Valider ou assigner des valeurs par défaut
+    const posX = data.XY ?? 0;
+    const posY = data.Yx ?? 0;
+
+    // 3. Création du nouvel objet missile
+    const nouveauMissile = {
+        id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
+        x: posX,
+        y: posY,
+        vitesse: 5 // Optionnel : vitesse de déplacement
+    };
+
+    // 4. Ajout du missile dans le tableau
+    listeMissiles.push(nouveauMissile);
+      // Diffuse la nouvelle position aux autres joueurs
+    socket.broadcast.emit('informofmissile', {
+      missiletargetx: data.XY,
+      missiletargerty: data.Yx
+    });
+
+    console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+});
+
   // 4. Écouter les mouvements du joueur en temps réel
   socket.on('playerMovement', (movementData) => {
     if (players[socket.id]) {
@@ -85,6 +113,7 @@ io.on('connection', (socket) => {
       socket.broadcast.emit('playerMoved', players[socket.id]);
     }
   });
+
 
   // 5. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
