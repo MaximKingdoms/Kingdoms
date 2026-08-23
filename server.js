@@ -97,8 +97,8 @@ socket.on('missile', (data) => {
       // Diffuse la nouvelle position aux autres joueurs
     socket.broadcast.emit('informofmissile', {
       playerid: data.id,
-      missiletargetx: data.XY,
-      missiletargetx: data.Yx,
+      XY: data.XY,
+      Yx: data.Yx,
       playerclass: players[socket.id].Class
     });
 
