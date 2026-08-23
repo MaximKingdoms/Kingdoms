@@ -96,6 +96,7 @@ socket.on('missile', (data) => {
     listeMissiles.push(nouveauMissile);
       // Diffuse la nouvelle position aux autres joueurs
     socket.broadcast.emit('informofmissile', {
+      playerid: id,
       missiletargetx: data.XY,
       missiletargerty: data.Yx
     });
