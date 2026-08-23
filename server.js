@@ -98,7 +98,8 @@ socket.on('missile', (data) => {
     socket.broadcast.emit('informofmissile', {
       playerid: data.id,
       missiletargetx: data.XY,
-      missiletargerty: data.Yx
+      missiletargerty: data.Yx,
+      playerclass: players[socket.id].Class
     });
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
