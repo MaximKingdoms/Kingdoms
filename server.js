@@ -98,7 +98,7 @@ socket.on('missile', (data) => {
     socket.broadcast.emit('informofmissile', {
       playerid: data.id,
       missiletargetx: data.XY,
-      missiletargerty: data.Yx,
+      missiletargetx: data.Yx,
       playerclass: players[socket.id].Class
     });
 
