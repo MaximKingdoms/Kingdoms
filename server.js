@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
     
     // Diffuser l'information du coup à tout le monde
     io.emit('informofhit', {
-      playernametouched: hitdata.playerid, 
+      playernametouched: hitdata.playername, 
       playerhptouched: hitdata.playerhp
     });
   });
