@@ -69,7 +69,7 @@ io.on('connection', (socket) => {
     });
     
     // Diffuser l'information du coup à tout le monde
-    socket.broadcast.emit('informofhit', {
+    io.emit('informofhit', {
       playernametouched: hitdata.playername, 
       playerhptouched: hitdata.playerhp
     });
@@ -95,7 +95,7 @@ socket.on('missile', (data) => {
     // 4. Ajout du missile dans le tableau
     listeMissiles.push(nouveauMissile);
       // Diffuse la nouvelle position aux autres joueurs
-    socket.broadcast.emit('informofmissile', {
+    socket.emit('informofmissile', {
       playerid: data.id,
       XY: data.XY,
       Yx: data.Yx,
@@ -112,7 +112,7 @@ socket.on('missile', (data) => {
       players[socket.id].Yx = movementData.Yx;
 
       // Diffuse la nouvelle position aux autres joueurs
-      socket.broadcast.emit('playerMoved', players[socket.id]);
+      socket.emit('playerMoved', players[socket.id]);
     }
   });
 
