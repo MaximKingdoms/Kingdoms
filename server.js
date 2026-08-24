@@ -85,7 +85,7 @@ socket.on('missile', (data) => {
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
         x: posX,
         y: posY,
-        vitesse: 5 // Optionnel : vitesse de déplacement
+        power: hp // Optionnel : vitesse de déplacement
     };
 
     // 4. Ajout du missile dans le tableau
@@ -96,6 +96,7 @@ socket.on('missile', (data) => {
       XY: data.XY,
       Yx: data.Yx,
       playerclass: players[socket.id].Class
+      hp: data.hp;
     });
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
