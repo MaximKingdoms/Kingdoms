@@ -112,7 +112,7 @@ socket.on('missile', (data) => {
       players[socket.id].Yx = movementData.Yx;
 
       // Diffuse la nouvelle position aux autres joueurs
-      io.emit('playerMoved', players[socket.id]);
+      socket.broadcast.emit('playerMoved', players[socket.id]);
     }
   });
 
