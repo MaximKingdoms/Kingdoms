@@ -85,7 +85,7 @@ socket.on('missile', (data) => {
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
         x: posX,
         y: posY,
-        power: hp // Optionnel : vitesse de déplacement
+        power: data.hp // Optionnel : vitesse de déplacement
     };
 
     // 4. Ajout du missile dans le tableau
