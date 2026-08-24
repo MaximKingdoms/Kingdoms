@@ -49,10 +49,7 @@ io.on('connection', (socket) => {
 
     // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
     io.emit('newPlayer', players[socket.id]);
-  });
-
-  // 2. Demande de la liste complète des joueurs
-  socket.on('askplayers', (askreceived) => {  
+    
     const listeJoueurs = Object.values(players);
     console.log("Liste des joueurs envoyée :", listeJoueurs);
     
