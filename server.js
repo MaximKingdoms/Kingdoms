@@ -95,7 +95,7 @@ socket.on('missile', (data) => {
     // 4. Ajout du missile dans le tableau
     listeMissiles.push(nouveauMissile);
       // Diffuse la nouvelle position aux autres joueurs
-    socket.emit('informofmissile', {
+    io.emit('informofmissile', {
       playerid: data.id,
       XY: data.XY,
       Yx: data.Yx,
@@ -112,7 +112,7 @@ socket.on('missile', (data) => {
       players[socket.id].Yx = movementData.Yx;
 
       // Diffuse la nouvelle position aux autres joueurs
-      socket.emit('playerMoved', players[socket.id]);
+      io.emit('playerMoved', players[socket.id]);
     }
   });
 
