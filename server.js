@@ -95,8 +95,8 @@ socket.on('missile', (data) => {
       playerid: data.id,
       XY: data.XY,
       Yx: data.Yx,
-      playerclass: players[socket.id].Class
-      hp: data.hp;
+      playerclass: players[socket.id].Class,
+      hp: data.hp
     });
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
