@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
         player.Currenthp = hitdata.playerhp;
       }
     });
-    
+    console.log(playername);
     // Diffuser l'information du coup à tout le monde
     io.emit('informofhit', {
       playernametouched: hitdata.playername, 
