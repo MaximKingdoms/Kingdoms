@@ -120,7 +120,7 @@ socket.on('missile', (data) => {
     
     if (players[socket.id]) {
       delete players[socket.id];
-      io.emit('disconnectPlayer', socket.id);
+      socket.broadcast.emit('disconnectPlayer', socket.id);
     }
   });
 });
