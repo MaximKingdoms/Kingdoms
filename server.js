@@ -95,7 +95,7 @@ const listeMonstres = [];
       monstreid: data.id,
       XY: data.XY,
       Yx: data.Yx,
-      monsterclass: data.class,
+      monsterclass: data.monsterclass,
       hp: data.hp
     });
 
