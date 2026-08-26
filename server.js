@@ -73,6 +73,33 @@ io.on('connection', (socket) => {
 
   // 1. Tableau global pour stocker tous les missiles actifs
 const listeMissiles = [];
+const listeMonstres = [];
+  socket.on('monstre', (data) => {
+    // Valider ou assigner des valeurs par défaut
+    const posX = data.XY ?? 0;
+    const posY = data.Yx ?? 0;
+
+    // 3. Création du nouvel objet missile
+    const nouveauMonstre = {
+        id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
+        x: posX,
+        y: posY,
+        power: data.hp // Optionnel : vitesse de déplacement
+    };
+
+    // 4. Ajout du missile dans le tableau
+    listeMonstres.push(nouveauMonstre);
+      // Diffuse la nouvelle position aux autres joueurs
+    io.emit('informofmonster', {
+      monstreid: data.id,
+      XY: data.XY,
+      Yx: data.Yx,
+      monsterclass:,
+      hp: data.hp
+    });
+
+    console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+});
 
 // 2. Écoute de l'événement à chaque tir
 socket.on('missile', (data) => {
