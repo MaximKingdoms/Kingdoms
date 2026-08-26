@@ -85,7 +85,7 @@ const listeMonstres = [];
         x: posX,
         y: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
-        class: data.class
+        class: data.monsterclass
     };
 
     // 4. Ajout du missile dans le tableau
