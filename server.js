@@ -142,6 +142,7 @@ socket.on('missile', (data) => {
   
   socket.on('monsterMovement', (movementData) => {
     console.log(movementData.id);
+    console.log(monsters[movementData.id]);
       if (monsters[movementData.id]) {
       monsters[movementData.id].x = movementData.newx;
       monsters[movementData.id].y = movementData.newy;
