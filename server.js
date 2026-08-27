@@ -141,12 +141,23 @@ socket.on('missile', (data) => {
   });
   
   socket.on('monsterMovement', (movementData) => {
-      
+      if (monsters[movementData.id]) {
+      monsters[movementData.id].x = movementData.newx;
+      monsters[movementData.id].y = movementData.newy;
+      monsters[movementData.id].power = movementData.actualhp;
+      monsters[movementData.id].class = movementData.actualclass;
+      }
       // Diffuse la nouvelle position aux autres joueurs
  //socket.emit('monsterMovement', { id: monstersfound.dataset.monstername, newx: monX, newy: monY, actualhp: monstersfound.dataset.hp, actualclass: monstersfound.dataset.monstertype });
-      socket.broadcast.emit('monsterMoved', );
+    io.emit('monsterMoved', {
+      monid: movementData.id,
+      monx: movementData.newx, 
+      mony: movementData.newy,
+      monhp: movementData.actualhp,
+      monclass: movementData.actualclass
+    });
     }
-  });
+ 
 
 
   // 5. Gérer la déconnexion d'un joueur
