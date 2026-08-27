@@ -181,15 +181,15 @@ function moveMonstersServer() {
         // 1. Recherche du joueur le plus proche
         playerIds.forEach(pId => {
             const player = players[pId];
-            const distance = Math.sqrt(Math.pow(monster.x - player.x, 2) + Math.pow(monster.y - player.y, 2));
+            const distance = Math.sqrt(Math.pow(monster.x - player.XY, 2) + Math.pow(monster.y - player.Yx, 2));
             if (distance < distancemin) {
                 distancemin = distance;
                 joueurnear = player;
             }
         });
 
-        let chaX = joueurnear ? joueurnear.x : 175;
-        let chaY = joueurnear ? joueurnear.y : 175;
+        let chaX = joueurnear ? joueurnear.XY : 175;
+        let chaY = joueurnear ? joueurnear.Yx : 175;
         let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
         // Calcul du déplacement basé sur le temps réel écoulé
