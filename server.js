@@ -140,25 +140,88 @@ socket.on('missile', (data) => {
     }
   });
   
-  socket.on('monsterMovement', (movementData) => {
-      if (monsters[movementData.id]) {
-      monsters[movementData.id].x = movementData.newx;
-      monsters[movementData.id].y = movementData.newy;
-      monsters[movementData.id].power = movementData.actualhp;
-      monsters[movementData.id].class = movementData.actualclass;
-      }
-      // Diffuse la nouvelle position aux autres joueurs
- //socket.emit('monsterMovement', { id: monstersfound.dataset.monstername, newx: monX, newy: monY, actualhp: monstersfound.dataset.hp, actualclass: monstersfound.dataset.monstertype });
-    console.log(movementData.id);
-    socket.broadcast.emit('monsterMoved', {
-      monid: movementData.id,
-      monx: movementData.newx, 
-      mony: movementData.newy,
-      monhp: movementData.actualhp,
-      monclass: movementData.actualclass
+function moveMonstersServer() {
+    const monsterIds = Object.keys(monsters);
+    if (monsterIds.length === 0) return;
+
+    const playerIds = Object.keys(players);
+
+    monsterIds.forEach(id => {
+        let monster = monsters[id];
+        let distancemin = Infinity;
+        let joueurnear = null;
+
+        // 1. Recherche du joueur le plus proche
+        playerIds.forEach(pId => {
+            const player = players[pId];
+            const distancex = monster.x - player.x;
+            const distancey = monster.y - player.y;
+            const distance = Math.sqrt(distancex * distancex + distancey * distancey);
+
+            if (distance < distancemin) {
+                distancemin = distance;
+                joueurnear = player;
+            }
+        });
+
+        // Variables de secours si aucun joueur n'est trouvé
+        let chaX = joueurnear ? joueurnear.x : 175;
+        let chaY = joueurnear ? joueurnear.y : 175;
+        let charxx = joueurnear ? joueurnear.charxx : 175;
+        let charyy = joueurnear ? joueurnear.charyy : 175;
+        let playerHp = joueurnear ? joueurnear.hp : 0;
+
+        // 2. Logique Poursuite ou Fuite
+        if (playerIds.length === 0 || playerHp <= 0) {
+            // CAS : FUITE (Correction des variables X et Y)
+            if (monster.x < chaX) {
+                monster.x -= 1;
+            } else if (monster.x > chaX) {
+                monster.x += 1;
+            }
+
+            if (monster.y < chaY) {
+                monster.y -= 1;
+            } else if (monster.y > chaY) {
+                monster.y += 1;
+            }
+        } else {
+            // CAS : POURSUITE
+            if (monster.x < chaX) {
+                monster.x += 1;
+            } else if (monster.x > chaX) {
+                monster.x -= 1;
+            }
+
+            if (monster.y < chaY) {
+                monster.y += 1;
+            } else if (monster.y > chaY) {
+                monster.y -= 1;
+            }
+        }
+
+        // 3. Vérification des limites de l'écran (Mort du monstre)
+        if (monster.y < 1 || monster.y > 325 || monster.x < 1 || monster.x > 325) {
+            // On retire le monstre de la mémoire du serveur
+            delete monsters[id];
+            
+            // On informe les clients de le supprimer graphiquement
+            io.emit('monsterRemoved', { id: id });
+        } else {
+            // 4. On diffuse la position mise à jour à TOUS les joueurs
+            io.emit('monsterMoved', {
+                monid: id,
+                monx: monster.x,
+                mony: monster.y,
+                monhp: monster.power,
+                monclass: monster.class
+            });
+        }
     });
-    });
- 
+}
+
+// 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
+setInterval(moveMonstersServer, 33);
 
 
   // 5. Gérer la déconnexion d'un joueur
