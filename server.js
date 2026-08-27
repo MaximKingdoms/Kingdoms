@@ -160,7 +160,7 @@ socket.on('missile', (data) => {
   });
   
 let lastUpdateTime = Date.now();
-const MONSTER_SPEED = 30; // Vitesse en pixels par seconde
+const MONSTER_SPEED = 15; // Vitesse en pixels par seconde
 
 function moveMonstersServer() {
     const now = Date.now();
