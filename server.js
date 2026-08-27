@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
   // 3. Gestion des dégâts / coups reçus
   socket.on('hitfromplayer', (hitdata) => {
     Object.values(players).forEach(player => {
-      if (player.Nomhero === hitdata.playername) {
+      if (player.id === hitdata.playername) {
         player.Currenthp = hitdata.playerhp;
       }
     });
