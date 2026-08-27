@@ -30,7 +30,7 @@ const pool = mysql.createPool({
 // Le stockage en RAM
 const joueursEnLigne = {}; 
 const players = {};
-
+const monsters = {};
 io.on('connection', (socket) => {
   console.log('Un utilisateur tente de se connecter :', socket.id);
 
@@ -80,26 +80,25 @@ const listeMonstres = [];
     const posY = data.Yx ?? 0;
 
     // 3. Création du nouvel objet missile
-    const nouveauMonstre = {
-        id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
+    new monsterid = Math.random().toString(36).substring(2, 9)
+    monsters[monsterid] = {
+      id: monsterid,
         x: posX,
         y: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
         class: data.monsterclass
     };
 
-    // 4. Ajout du missile dans le tableau
-    listeMonstres.push(nouveauMonstre);
       // Diffuse la nouvelle position aux autres joueurs
     io.emit('informofmonster', {
-      monstreid: nouveauMonstre.id,
+      monstreid: monsterid,
       XY: data.XY,
       Yx: data.Yx,
       monsterclass: data.monsterclass,
       hp: data.hp
     });
 
-    console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+    console.log(`Monstre ajouté ! Total en cours : ${monsters.length}`);
 });
 
 // 2. Écoute de l'événement à chaque tir
@@ -138,6 +137,14 @@ socket.on('missile', (data) => {
 
       // Diffuse la nouvelle position aux autres joueurs
       socket.broadcast.emit('playerMoved', players[socket.id]);
+    }
+  });
+  
+  socket.on('monsterMovement', (movementData) => {
+      
+      // Diffuse la nouvelle position aux autres joueurs
+ //socket.emit('monsterMovement', { id: monstersfound.dataset.monstername, newx: monX, newy: monY, actualhp: monstersfound.dataset.hp, actualclass: monstersfound.dataset.monstertype });
+      socket.broadcast.emit('monsterMoved', );
     }
   });
 
