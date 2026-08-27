@@ -141,8 +141,6 @@ socket.on('missile', (data) => {
   });
   
   socket.on('monsterMovement', (movementData) => {
-    console.log(movementData.id);
-    console.log(monsters[movementData.id]);
       if (monsters[movementData.id]) {
       monsters[movementData.id].x = movementData.newx;
       monsters[movementData.id].y = movementData.newy;
@@ -151,6 +149,7 @@ socket.on('missile', (data) => {
       }
       // Diffuse la nouvelle position aux autres joueurs
  //socket.emit('monsterMovement', { id: monstersfound.dataset.monstername, newx: monX, newy: monY, actualhp: monstersfound.dataset.hp, actualclass: monstersfound.dataset.monstertype });
+    console.log(movementData.id);
     io.emit('monsterMoved', {
       monid: movementData.id,
       monx: movementData.newx, 
