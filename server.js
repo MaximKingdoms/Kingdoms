@@ -92,7 +92,7 @@ const listeMonstres = [];
     listeMonstres.push(nouveauMonstre);
       // Diffuse la nouvelle position aux autres joueurs
     io.emit('informofmonster', {
-      monstreid: data.id,
+      monstreid: nouveauMonstre.id,
       XY: data.XY,
       Yx: data.Yx,
       monsterclass: data.monsterclass,
