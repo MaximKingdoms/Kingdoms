@@ -98,7 +98,7 @@ const listeMonstres = [];
       hp: data.hp
     });
 
-    console.log(`Monstre ajouté ! Total en cours : ${monsters.length}`);
+    console.log(`Monstre ajouté !`);
 });
 
 // 2. Écoute de l'événement à chaque tir
