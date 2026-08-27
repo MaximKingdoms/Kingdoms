@@ -190,7 +190,7 @@ function moveMonstersServer() {
 
         let chaX = joueurnear ? joueurnear.x : 175;
         let chaY = joueurnear ? joueurnear.y : 175;
-        let playerHp = joueurnear ? joueurnear.hp : 0;
+        let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
         // Calcul du déplacement basé sur le temps réel écoulé
         // Si le serveur a du retard, deltaTime augmente, donc le déplacement augmente au lieu de saccader
