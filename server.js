@@ -153,6 +153,7 @@ socket.on('missile', (data) => {
   });
 });
 
+
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
   console.log("Sauvegarde automatique des positions chez Hostinger...");
