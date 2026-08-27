@@ -80,7 +80,7 @@ const listeMonstres = [];
     const posY = data.Yx ?? 0;
 
     // 3. Création du nouvel objet missile
-    new monsterid = Math.random().toString(36).substring(2, 9);
+    let monsterid = Math.random().toString(36).substring(2, 9);
     monsters[monsterid] = {
       id: monsterid,
         x: posX,
