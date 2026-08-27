@@ -160,16 +160,20 @@ socket.on('missile', (data) => {
   });
   
 let lastUpdateTime = Date.now();
-const MONSTER_SPEED = 45; // Vitesse en pixels par seconde (ajustez cette valeur)
+const MONSTER_SPEED = 45; // Vitesse en pixels par seconde
 
 function moveMonstersServer() {
     const now = Date.now();
-    // Le delta_time est la fraction de seconde écoulée (ex: 0.11 pour 110ms)
+    // 1. On calcule le deltaTime UNE SEULE FOIS pour toute la fonction
     const deltaTime = (now - lastUpdateTime) / 1000;
-    lastUpdateTime = now;
+    
+    // CORRECTION MAJEURE : On ne met à jour lastUpdateTime qu'à la toute fin de la fonction, pas ici !
 
     const monsterIds = Object.keys(monsters);
-    if (monsterIds.length === 0) return;
+    if (monsterIds.length === 0) {
+        lastUpdateTime = now; // On garde le temps à jour même s'il n'y a pas de monstres
+        return;
+    }
 
     const playerIds = Object.keys(players);
 
@@ -178,7 +182,7 @@ function moveMonstersServer() {
         let distancemin = Infinity;
         let joueurnear = null;
 
-        // 1. Recherche du joueur le plus proche
+        // Recherche du joueur le plus proche avec tes bons paramètres (XY et Yx)
         playerIds.forEach(pId => {
             const player = players[pId];
             const distance = Math.sqrt(Math.pow(monster.x - player.XY, 2) + Math.pow(monster.y - player.Yx, 2));
@@ -192,22 +196,31 @@ function moveMonstersServer() {
         let chaY = joueurnear ? joueurnear.Yx : 175;
         let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
-        // Calcul du déplacement basé sur le temps réel écoulé
-        // Si le serveur a du retard, deltaTime augmente, donc le déplacement augmente au lieu de saccader
         const step = MONSTER_SPEED * deltaTime;
 
-        // 2. Logique de Poursuite ou Fuite
+        // 2. Logique de Poursuite ou Fuite avec sécurité "Anti-Tremblement"
         if (playerIds.length === 0 || playerHp <= 0) {
             // FUITE
             monster.x += (monster.x < chaX) ? -step : step;
             monster.y += (monster.y < chaY) ? -step : step;
         } else {
             // POURSUITE
-            monster.x += (monster.x < chaX) ? step : -step;
-            monster.y += (monster.y < chaY) ? step : -step;
+            // Axe X : Si le monstre est plus proche du joueur que la taille du "step", il se colle sur lui
+            if (Math.abs(monster.x - chaX) <= step) {
+                monster.x = chaX;
+            } else {
+                monster.x += (monster.x < chaX) ? step : -step;
+            }
+
+            // Axe Y
+            if (Math.abs(monster.y - chaY) <= step) {
+                monster.y = chaY;
+            } else {
+                monster.y += (monster.y < chaY) ? step : -step;
+            }
         }
 
-        // Éviter les nombres à virgule infinis pour le réseau
+        // On arrondit pour éviter d'envoyer des nombres à virgule infinis sur le réseau
         monster.x = Math.round(monster.x);
         monster.y = Math.round(monster.y);
 
@@ -225,9 +238,13 @@ function moveMonstersServer() {
             });
         }
     });
+
+    // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
+    lastUpdateTime = now;
 }
-// 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
+
 setInterval(moveMonstersServer, 110);
+// 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
 
   // 5. Gérer la déconnexion d'un joueur
