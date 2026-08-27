@@ -239,7 +239,7 @@ function moveMonstersServer() {
 }
 
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
-setInterval(moveMonstersServer, 150);
+setInterval(moveMonstersServer, 110);
 
 
   // 5. Gérer la déconnexion d'un joueur
