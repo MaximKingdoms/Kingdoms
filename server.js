@@ -240,7 +240,7 @@ function moveMonstersServer() {
     });
 
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
-    lastUpdateTime = now;
+    lastUpdateTime = Date.now();
 }
 
 setInterval(moveMonstersServer, 110);
