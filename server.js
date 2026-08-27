@@ -70,6 +70,21 @@ io.on('connection', (socket) => {
       playerhptouched: hitdata.playerhp
     });
   });
+  socket.on('hitmonster', (hitdata) => {
+      if (monsters[hitdata.monstername]) {
+        monsters[hitdata.monstername].power = hitdata.monsterhp;
+      }
+          if (monster.power <= 0) {
+        
+      }
+
+    // Diffuser l'information du coup à tout le monde
+    socket.broadcast.emit('informofhitmonster', {
+      monsternametouched: hitdata.monstername, 
+      monsterhptouched: hitdata.monsterhp
+    });
+  });
+
 
   // 1. Tableau global pour stocker tous les missiles actifs
 const listeMissiles = [];
