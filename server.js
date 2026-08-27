@@ -189,7 +189,7 @@ function moveMonstersServer() {
         let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
         // 2. Logique Poursuite ou Fuite
-      console.log(joueurnear.Currenthp);
+   //   console.log(joueurnear.Currenthp);
         if (playerIds.length === 0 || playerHp <= 0) {
             // CAS : FUITE (Correction des variables X et Y)
             if (monster.x < chaX) {
