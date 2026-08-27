@@ -156,7 +156,7 @@ socket.on('missile', (data) => {
       monhp: movementData.actualhp,
       monclass: movementData.actualclass
     });
-    }
+    });
  
 
 
