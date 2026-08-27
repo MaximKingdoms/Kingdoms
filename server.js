@@ -243,7 +243,14 @@ function moveMonstersServer() {
     lastUpdateTime = Date.now();
 }
 
-setInterval(moveMonstersServer, 110);
+  let gameInterval = null; // Variable globale pour stocker l'intervalle
+
+// Dans votre fonction de configuration/connexion :
+if (!gameInterval) { 
+    // On ne lance l'intervalle que s'il n'existe pas déjà
+    gameInterval = setInterval(moveMonstersServer, 110);
+}
+
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
 
