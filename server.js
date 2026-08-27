@@ -154,8 +154,8 @@ function moveMonstersServer() {
         // 1. Recherche du joueur le plus proche
         playerIds.forEach(pId => {
             const player = players[pId];
-            const distancex = monster.x - player.x;
-            const distancey = monster.y - player.y;
+            const distancex = monster.x - player.XY;
+            const distancey = monster.y - player.Yx;
             const distance = Math.sqrt(distancex * distancex + distancey * distancey);
 
             if (distance < distancemin) {
@@ -165,11 +165,9 @@ function moveMonstersServer() {
         });
 
         // Variables de secours si aucun joueur n'est trouvé
-        let chaX = joueurnear ? joueurnear.x : 175;
-        let chaY = joueurnear ? joueurnear.y : 175;
-        let charxx = joueurnear ? joueurnear.charxx : 175;
-        let charyy = joueurnear ? joueurnear.charyy : 175;
-        let playerHp = joueurnear ? joueurnear.hp : 0;
+        let chaX = joueurnear ? joueurnear.XY : 175;
+        let chaY = joueurnear ? joueurnear.Yx : 175;
+        let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
         // 2. Logique Poursuite ou Fuite
         if (playerIds.length === 0 || playerHp <= 0) {
