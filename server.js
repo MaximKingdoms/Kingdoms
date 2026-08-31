@@ -6,6 +6,7 @@ const http = require('http');
 
 let lastUpdateTime = Date.now();
 const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
+const listeMissiles = [];
 
 function moveMonstersServer() {
     const now = Date.now();
