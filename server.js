@@ -13,8 +13,8 @@ function moveMonstersServer() {
         
     listeMissiles.forEach((missile) => {
    
-const targetx = Number(missile.id][1]);
-const targety = Number(matrixmissile[missile.id][2]);
+const targetx = Number(missile.targetx);
+const targety = Number(missile.targety);
 missilex = missile.x;
 missiley = missile.y;
 
@@ -51,12 +51,8 @@ if (Math.abs(targetx - missilex ) > Math.abs(targety - missiley)) {
     }
 }
 
-        matrixmissile[missile.id][1] = missilex;
-        matrixmissile[missile.id][2] = missiley;
-        missimg[missile.id].style.left = String(missilex) + 'px';
-//    socket.emit('missilemoved', );
-    
-       missimg[missile.id].style.top = String(missiley) + 'px';
+        missile.x = missilex;
+        missile.y = missiley;
        
         
 });
