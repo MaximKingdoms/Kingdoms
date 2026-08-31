@@ -241,10 +241,10 @@ socket.on('missile', (data) => {
 });
 
   // 4. Écouter les mouvements du joueur en temps réel
-  socket.on('playerMovement', (movementData) => {
+  socket.on('player_move', (movementData) => {
     if (players[socket.id]) {
-      players[socket.id].XY = movementData.XY;
-      players[socket.id].Yx = movementData.Yx;
+      players[socket.id].XY = movementData.caseX;
+      players[socket.id].Yx = movementData.caseY;
 
       // Diffuse la nouvelle position aux autres joueurs
       socket.broadcast.emit('playerMoved', players[socket.id]);
