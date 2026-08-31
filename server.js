@@ -267,11 +267,11 @@ function emitGlobalPositions() {
   io.emit('globalPositions', {
     players: Object.keys(players).map(id => ({
       id: id,
-      nom: players[id].Nomhero,
-      x: players[id].XY,
-      y: players[id].Yx,
-      hp: players[id].Currenthp,
-      class: players[id].Class
+      Nomhero: players[id].Nomhero,
+      XY: players[id].XY,
+      Yx: players[id].Yx,
+      Currenthp: players[id].Currenthp,
+      Class: players[id].Class
     })),
     monsters: Object.keys(monsters).map(id => ({
       id: id,
