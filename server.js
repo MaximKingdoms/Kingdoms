@@ -86,6 +86,7 @@ function moveMonstersServer() {
 
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
+emitGlobalPositions();
 }
 
   let gameInterval = null; // Variable globale pour stocker l'intervalle
