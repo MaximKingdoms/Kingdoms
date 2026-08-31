@@ -9,6 +9,63 @@ const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
 const listeMissiles = [];
 
 function moveMonstersServer() {
+
+        
+    listeMissiles.forEach((missile) => {
+   
+const targetx = Number(missile.id][1]);
+const targety = Number(matrixmissile[missile.id][2]);
+missilex = missile.x;
+missiley = missile.y;
+
+//document.getElementById("testtext2").textContent =  "x: y : "+ String(targetx+" "+String(targety));
+
+
+//if (matrixplyer[missile.id][5] == "alchimist") {
+
+if (Math.abs(targetx - missilex ) > Math.abs(targety - missiley)) {
+    // Le mouvement est principalement horizontal
+    if (targetx > missilex) {
+        fireballdirection = "east";  
+        missilex = missilex +2;
+        
+        
+        // Le monstre est à droite
+    } else {
+        fireballdirection = "west"; 
+        missilex = missilex -2;
+
+// Le monstre est à gauche
+    }
+} else {
+    // Le mouvement est principalement vertical
+    if (targety > missiley) {
+        fireballdirection = "south";
+        missiley = missiley +2;
+        // Le monstre est en bas
+    } else {
+        fireballdirection = "north";
+        missiley = missiley -2;
+
+        // Le monstre est en haut
+    }
+}
+
+        matrixmissile[missile.id][1] = missilex;
+        matrixmissile[missile.id][2] = missiley;
+        missimg[missile.id].style.left = String(missilex) + 'px';
+//    socket.emit('missilemoved', );
+    
+       missimg[missile.id].style.top = String(missiley) + 'px';
+       
+        
+});
+
+
+
+/// section movemonster
+
+    
     const now = Date.now();
     // 1. On calcule le deltaTime UNE SEULE FOIS pour toute la fonction
     const deltaTime = (now - lastUpdateTime) / 1000;
@@ -185,7 +242,7 @@ io.on('connection', (socket) => {
 
 
   // 1. Tableau global pour stocker tous les missiles actifs
-const listeMissiles = [];
+
 const listeMonstres = [];
   socket.on('monstre', (data) => {
     // Valider ou assigner des valeurs par défaut
@@ -216,8 +273,10 @@ socket.on('missile', (data) => {
     // 3. Création du nouvel objet missile
     const nouveauMissile = {
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
-        x: posX,
-        y: posY,
+        x: players[data.id].XY,
+        y: players[data.id].Yx,
+        targetx: posx,
+        targety: posy,
         power: data.hp, // Optionnel : vitesse de déplacement
         playershot: data.id,
         playerclass: players[data.id].Class
@@ -226,14 +285,6 @@ socket.on('missile', (data) => {
 
     // 4. Ajout du missile dans le tableau
     listeMissiles.push(nouveauMissile);
-      // Diffuse la nouvelle position aux autres joueurs
-    io.emit('informofmissile', {
-      playerid: data.id,
-      XY: data.XY,
-      Yx: data.Yx,
-      playerclass: players[socket.id].Class,
-      hp: data.hp
-    });
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
 });
