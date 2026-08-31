@@ -201,13 +201,6 @@ const listeMonstres = [];
     };
 
       // Diffuse la nouvelle position aux autres joueurs
-    io.emit('informofmonster', {
-      monstreid: monsterid,
-      XY: data.XY,
-      Yx: data.Yx,
-      monsterclass: data.monsterclass,
-      hp: data.hp
-    });
 
     console.log(`Monstre ajouté !`);
 });
@@ -267,6 +260,32 @@ socket.on('missile', (data) => {
   });
 });
 
+// 1. NOUVELLE FONCTION : Émet toutes les positions du jeu d'un coup
+function emitGlobalPositions() {
+  io.emit('globalPositions', {
+    players: Object.keys(players).map(id => ({
+      id: id,
+      nom: players[id].Nomhero,
+      x: players[id].XY,
+      y: players[id].Yx,
+      hp: players[id].Currenthp,
+      class: players[id].Class
+    })),
+    monsters: Object.keys(monsters).map(id => ({
+      id: id,
+      x: monsters[id].x,
+      y: monsters[id].y,
+      hp: monsters[id].power,
+      class: monsters[id].class
+    })),
+    missiles: listeMissiles.map(missile => ({
+      id: missile.id,
+      x: missile.x,
+      y: missile.y,
+      power: missile.power
+    }))
+  });
+}
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
   console.log("Sauvegarde automatique des positions chez Hostinger...");
