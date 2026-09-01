@@ -318,11 +318,12 @@ socket.on('missile', (data) => {
   // 4. Écouter les mouvements du joueur en temps réel
 socket.on('playerMoved2', (donneesPosition) => {
     if (players[socket.id]) {
+            console.log("Nouvelle position = " + donneesPosition.pixelX);
         // On stocke les coordonnées en pixels reçues du client
         players[socket.id].XY = donneesPosition.pixelX;
         players[socket.id].Yx = donneesPosition.pixelY;
-        players[socket.id].caseX = donneesPosition.caseX;
-        players[socket.id].caseY = donneesPosition.caseY;
+//        players[socket.id].caseX = donneesPosition.caseX;
+//     players[socket.id].caseY = donneesPosition.caseY;
 
       // Diffuse la nouvelle position aux autres joueurs
     }
