@@ -9,6 +9,7 @@ const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
 let listeMissiles = [];
 
 function moveMonstersServer() {
+emitGlobalPositions();
 
         
     listeMissiles.forEach((missile) => {
