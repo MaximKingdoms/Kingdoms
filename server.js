@@ -22,37 +22,54 @@ missiley = missile.y;
 
 
 //if (matrixplyer[missile.id][5] == "alchimist") {
-
-if (Math.abs(targetx - missilex ) > Math.abs(targety - missiley)) {
+if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
     // Le mouvement est principalement horizontal
     if (targetx > missilex) {
         fireballdirection = "east";  
-        missilex = missilex +2;
-        
-        
-        // Le monstre est à droite
+        // Si la cible est à moins de 5px, on se positionne dessus, sinon on avance de 5px
+        if (targetx - missilex < 5) {
+            missilex = targetx;
+        } else {
+            missilex = missilex + 5;
+        }
     } else {
         fireballdirection = "west"; 
-        missilex = missilex -2;
-
-// Le monstre est à gauche
+        if (missilex - targetx < 5) {
+            missilex = targetx;
+        } else {
+            missilex = missilex - 5;
+        }
     }
 } else {
     // Le mouvement est principalement vertical
     if (targety > missiley) {
         fireballdirection = "south";
-        missiley = missiley +2;
-        // Le monstre est en bas
+        if (targety - missiley < 5) {
+            missiley = targety;
+        } else {
+            missiley = missiley + 5;
+        }
     } else {
         fireballdirection = "north";
-        missiley = missiley -2;
-
-        // Le monstre est en haut
+        if (missiley - targety < 5) {
+            missiley = targety;
+        } else {
+            missiley = missiley - 5;
+        }
     }
 }
 
-        missile.x = missilex;
-        missile.y = missiley;
+// Mise à jour des coordonnées du missile
+missile.x = missilex;
+missile.y = missiley;
+
+// Vérification de l'impact (maintenant que les positions peuvent être exactement égales)
+if (missilex === targetx && missiley === targety) {
+    listeMissiles = listeMissiles.filter(m => m.id !== missile.id); // Utilisation de missile.id ou data.id selon votre contexte
+    console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
+}
+    });
+
        
         
 });
