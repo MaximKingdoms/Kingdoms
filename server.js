@@ -345,7 +345,8 @@ function emitGlobalPositions() {
       XY: players[id].XY,
       Yx: players[id].Yx,
       Currenthp: players[id].Currenthp,
-      Class: players[id].Class
+      Class: players[id].Class,
+      Strength: players[id}.Strength
     })),
     monsters: Object.keys(monsters).map(id => ({
       id: id,
