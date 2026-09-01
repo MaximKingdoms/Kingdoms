@@ -271,8 +271,8 @@ socket.on('missile', (data) => {
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
         x: players[data.id].XY,
         y: players[data.id].Yx,
-        targetx: posx,
-        targety: posy,
+        targetx: posX,
+        targety: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
         playershot: data.id,
         playerclass: players[data.id].Class
