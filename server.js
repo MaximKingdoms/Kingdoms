@@ -81,18 +81,22 @@ if (Math.abs(targetx - missilex ) > Math.abs(targety - missiley)) {
         let distancemin = Infinity;
         let joueurnear = null;
 
-        // Recherche du joueur le plus proche avec tes bons paramètres (XY et Yx)
+                // Recherche du joueur le plus proche en utilisant XY et Yx (qui stockent les pixels globaux)
         playerIds.forEach(pId => {
             const player = players[pId];
-            const distance = Math.sqrt(Math.pow(monster.x - player.XY, 2) + Math.pow(monster.y - player.Yx, 2));
-            if (distance < distancemin) {
-                distancemin = distance;
-                joueurnear = player;
+            // Sécurité : s'assurer que le joueur a bien des coordonnées définies
+            if (player.XY !== undefined && player.Yx !== undefined) {
+                const distance = Math.sqrt(Math.pow(monster.x - player.XY, 2) + Math.pow(monster.y - player.Yx, 2));
+                if (distance < distancemin) {
+                    distancemin = distance;
+                    joueurnear = player;
+                }
             }
         });
 
-        let chaX = joueurnear ? joueurnear.XY : 175;
-        let chaY = joueurnear ? joueurnear.Yx : 175;
+        // Cible par défaut si aucun joueur n'est trouvé (le monstre reste sur place)
+        let chaX = joueurnear ? joueurnear.XY : monster.x;
+        let chaY = joueurnear ? joueurnear.Yx : monster.y;
         let playerHp = joueurnear ? joueurnear.Currenthp : 0;
 
         const step = MONSTER_SPEED * deltaTime;
