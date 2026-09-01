@@ -6,7 +6,7 @@ const http = require('http');
 
 let lastUpdateTime = Date.now();
 const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
-const listeMissiles = [];
+let listeMissiles = [];
 
 function moveMonstersServer() {
 
@@ -205,7 +205,7 @@ io.on('connection', (socket) => {
     console.log("Liste des joueurs envoyée :", listeJoueurs);
     
     // Envoyer la liste uniquement au joueur qui la demande
-    socket.emit('currentPlayers', listeJoueurs); 
+socket.emit('currentPlayers', listeJoueurs); 
   });
 
   // 3. Gestion des dégâts / coups reçus
@@ -221,7 +221,16 @@ io.on('connection', (socket) => {
       playerhptouched: hitdata.playerhp
     });
   });
-  socket.on('hitmonster', (hitdata) => {
+
+socket.on('missileisdead', (data) => {
+    // Supprime le missile qui correspond à l'ID reçu
+    listeMissiles = listeMissiles.filter(missile => missile.id !== data.id);
+    
+    console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
+});
+
+        
+socket.on('hitmonster', (hitdata) => {
       if (monsters[hitdata.monstername]) {
         monsters[hitdata.monstername].power = hitdata.monsterhp;
       }
