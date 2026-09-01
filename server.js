@@ -325,7 +325,6 @@ socket.on('envoyerAuServeur', (donneesPosition) => {
         players[socket.id].caseY = donneesPosition.caseY;
 
       // Diffuse la nouvelle position aux autres joueurs
-      socket.broadcast.emit('playerMoved', players[socket.id]);
     }
   });
   
