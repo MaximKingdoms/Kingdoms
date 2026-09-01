@@ -371,8 +371,15 @@ setInterval(() => {
   console.log("Chargement des joueurs");
   
   // Note : Assurez-vous d'alimenter "joueursEnLigne" ou changez cette ligne par Object.values(players)
-  Object.values(joueursEnLigne).forEach(joueur => {
-    sauvegarderJoueur(joueur);
+   const playerIds = Object.keys(players);
+
+        playerIds.forEach(pId => {
+            const player = players[pId];
+     sauvegarderJoueur(player);
+            // Sécurité : s'assurer que le joueur a bien des coordonnées définies
+            }
+        });
+
   });
 }, 60000); 
 
@@ -380,8 +387,8 @@ function sauvegarderJoueur(joueur) {
   if (!joueur) return;
   
   // Correction de la requête pour utiliser les placeholders de sécurité (?) de mysql2
-  const sql = "UPDATE HeroesCreated SET XY = ?, Yx = ? WHERE id = ?";
-  pool.query(sql, [joueur.x, joueur.y, joueur.id_bdd], (err) => {
+  const sql = "UPDATE HeroesCreated SET XY = ?, Yx = ? WHERE Nomhero = ?";
+  pool.query(sql, [joueur.XY, joueur.Yx, joueur.Nomhero], (err) => {
     if (err) console.error("Erreur de sauvegarde Hostinger:", err);
   });
 }
