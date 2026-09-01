@@ -68,7 +68,6 @@ if (missilex === targetx && missiley === targety) {
     listeMissiles = listeMissiles.filter(m => m.id !== missile.id); // Utilisation de missile.id ou data.id selon votre contexte
     console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
 }
-    });
 
        
         
