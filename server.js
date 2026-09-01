@@ -254,11 +254,6 @@ socket.on('hitmonster', (hitdata) => {
         
       }
 
-    // Diffuser l'information du coup à tout le monde
-    socket.broadcast.emit('informofhitmonster', {
-      monsternametouched: hitdata.monstername, 
-      monsterhptouched: hitdata.monsterhp
-    });
   });
 
 
