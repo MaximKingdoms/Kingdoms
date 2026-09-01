@@ -334,6 +334,10 @@ function emitGlobalPositions() {
       id: missile.id,
       x: missile.x,
       y: missile.y,
+      targetx: missile.targetx,
+      targety: missile.targety,
+      playerclass: missile.playerclass,
+      playershot: missile.playershot,
       power: missile.power
     }))
   });
