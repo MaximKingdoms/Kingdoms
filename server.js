@@ -143,11 +143,7 @@ if (missilex === targetx && missiley === targety) {
         monster.x = Math.round(monster.x);
         monster.y = Math.round(monster.y);
 
-        // 3. Vérification des limites
-        if (monster.y < 1 || monster.y > 325 || monster.x < 1 || monster.x > 325) {
-            delete monsters[id];
-            io.emit('monsterRemoved', { id: id });
-        } else {
+
             io.emit('monsterMoved', {
                 monid: id,
                 monx: monster.x,
@@ -155,7 +151,7 @@ if (missilex === targetx && missiley === targety) {
                 monhp: monster.power,
                 monclass: monster.class
             });
-        }
+      
     });
 
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
