@@ -377,10 +377,9 @@ setInterval(() => {
             const player = players[pId];
      sauvegarderJoueur(player);
             // Sécurité : s'assurer que le joueur a bien des coordonnées définies
-            }
+            
         });
 
-  });
 }, 60000); 
 
 function sauvegarderJoueur(joueur) {
