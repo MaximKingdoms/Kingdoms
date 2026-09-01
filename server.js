@@ -208,7 +208,7 @@ io.on('connection', (socket) => {
       Yx: data.mapyyy,      
       Currenthp: data.actualhp,       
       Class: data.actualclass,      
-      Strenght: data.sonstr 
+      Strength: data.sonstr 
     };
 
     // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
