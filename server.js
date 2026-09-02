@@ -31,14 +31,17 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (targetx - missilex < 5) {
             missilex = targetx;
         } else {
-            missilex = missilex + 15;
+if (missile.playerclass == "ranger") { missilex = missilex + 10;)
+                missilex = missilex + 15;
         }
     } else {
         fireballdirection = "west"; 
         if (missilex - targetx < 5) {
             missilex = targetx;
         } else {
-            missilex = missilex - 15;
+
+if (missile.playerclass == "ranger") { missilex = missilex - 10;)
+                                      missilex = missilex - 15;
         }
     }
 } else {
@@ -48,6 +51,8 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (targety - missiley < 5) {
             missiley = targety;
         } else {
+                
+if (missile.playerclass == "ranger") { missiley = missiley + 10;)
             missiley = missiley + 15;
         }
     } else {
@@ -55,6 +60,8 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (missiley - targety < 5) {
             missiley = targety;
         } else {
+                
+if (missile.playerclass == "ranger") { missiley = missiley + 10;)
             missiley = missiley - 15;
         }
     }
