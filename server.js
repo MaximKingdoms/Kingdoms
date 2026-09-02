@@ -31,14 +31,14 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (targetx - missilex < 5) {
             missilex = targetx;
         } else {
-            missilex = missilex + 5;
+            missilex = missilex + 15;
         }
     } else {
         fireballdirection = "west"; 
         if (missilex - targetx < 5) {
             missilex = targetx;
         } else {
-            missilex = missilex - 5;
+            missilex = missilex - 15;
         }
     }
 } else {
@@ -48,14 +48,14 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (targety - missiley < 5) {
             missiley = targety;
         } else {
-            missiley = missiley + 5;
+            missiley = missiley + 15;
         }
     } else {
         fireballdirection = "north";
         if (missiley - targety < 5) {
             missiley = targety;
         } else {
-            missiley = missiley - 5;
+            missiley = missiley - 15;
         }
     }
 }
