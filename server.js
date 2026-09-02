@@ -82,54 +82,33 @@ if (missilex === targetx && missiley === targety) {
 });
 
 
-
-/// section movemonster
-
-    
-    const now = Date.now();
-    // 1. On calcule le deltaTime UNE SEULE FOIS pour toute la fonction
-    const deltaTime = (now - lastUpdateTime) / 1000;
-    
-    // CORRECTION MAJEURE : On ne met à jour lastUpdateTime qu'à la toute fin de la fonction, pas ici !
-
-    const monsterIds = Object.keys(monsters);
-    if (monsterIds.length === 0) {
-        lastUpdateTime = now; // On garde le temps à jour même s'il n'y a pas de monstres
-        return;
-    }
-
-    const playerIds = Object.keys(players);
-
-    monsterIds.forEach(id => {
-        let monster = monsters[id];
-        let distancemin = Infinity;
-        let joueurnear = null;
-
-                // Recherche du joueur le plus proche en utilisant XY et Yx (qui stockent les pixels globaux)
-        playerIds.forEach(pId => {
-            const player = players[pId];
-            // Sécurité : s'assurer que le joueur a bien des coordonnées définies
-            if (player.XY !== undefined && player.Yx !== undefined) {
-                const distance = Math.sqrt(Math.pow(monster.x - player.XY, 2) + Math.pow(monster.y - player.Yx, 2));
-                if (distance < distancemin) {
-                    distancemin = distance;
-                    joueurnear = player;
-                }
-            }
-        });
-
-        // Cible par défaut si aucun joueur n'est trouvé (le monstre reste sur place)
-        let chaX = joueurnear ? joueurnear.XY : monster.x;
-        let chaY = joueurnear ? joueurnear.Yx : monster.y;
-        let playerHp = joueurnear ? joueurnear.Currenthp : 0;
-
-        const step = MONSTER_SPEED * deltaTime;
-
         // 2. Logique de Poursuite ou Fuite avec sécurité "Anti-Tremblement"
         if (playerIds.length === 0 || playerHp <= 0) {
             // FUITE
-            monster.x += (monster.x < chaX) ? -step : step;
-            monster.y += (monster.y < chaY) ? -step : step;
+            // Sécurité : Si aucun joueur n'existe, on ne bouge pas
+            if (!joueurnear) {
+                // Le monstre reste sur place
+            } else {
+                // Axe X
+                if (monster.x < chaX) {
+                    monster.x -= step; // Le joueur est à droite, le monstre fuit à gauche
+                } else if (monster.x > chaX) {
+                    monster.x += step; // Le joueur est à gauche, le monstre fuit à droite
+                } else {
+                    // Égalité parfaite (le monstre est sur le joueur) : on force une fuite aléatoire ou fixe (ex: gauche)
+                    monster.x -= step; 
+                }
+
+                // Axe Y
+                if (monster.y < chaY) {
+                    monster.y -= step; // Le joueur est en bas, le monstre fuit en haut
+                } else if (monster.y > chaY) {
+                    monster.y += step; // Le joueur est en haut, le monstre fuit en bas
+                } else {
+                    // Égalité parfaite : on force une fuite fixe (ex: haut)
+                    monster.y -= step;
+                }
+            }
         } else {
             // POURSUITE
             // Axe X : Si le monstre est plus proche du joueur que la taille du "step", il se colle sur lui
@@ -146,21 +125,6 @@ if (missilex === targetx && missiley === targety) {
                 monster.y += (monster.y < chaY) ? step : -step;
             }
         }
-
-        // On arrondit pour éviter d'envoyer des nombres à virgule infinis sur le réseau
-        monster.x = Math.round(monster.x);
-        monster.y = Math.round(monster.y);
-
-
-            io.emit('monsterMoved', {
-                monid: id,
-                monx: monster.x,
-                mony: monster.y,
-                monhp: monster.power,
-                monclass: monster.class
-            });
-      
-    });
 
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
