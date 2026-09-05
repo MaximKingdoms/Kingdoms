@@ -41,7 +41,7 @@ if (missile.playerclass == "ranger") {
             missilex = targetx;
         } else {
 
-if (missile.playerclass == "ranger") { missilex = missilex - 10;)
+if (missile.playerclass == "ranger") { missilex = missilex - 10;}
                                       missilex = missilex - 15;
         }
     }
