@@ -87,7 +87,8 @@ if (missilex === targetx && missiley === targety) {
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
-const setp = 0.8;
+const step = 0.8;
+        
 Object.values(monsters).forEach(monster => {
     // Sécurité au cas où l'objet serait mal défini
     if (!monster) return;
