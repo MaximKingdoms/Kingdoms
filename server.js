@@ -92,8 +92,8 @@ Object.values(monsters).forEach(monster => {
     if (monster.class == 'Gobelin') {
         
         // 2. On utilise 'playersArray' à la place de 'players'
-        const livingPlayers = playersArray.filter(p => playerIds.includes(p.id) && p.hp > 0);
-        const deadPlayers = playersArray.filter(p => playerIds.includes(p.id) && p.hp <= 0);
+        const livingPlayers = playersArray.filter(p => playersArray.includes(p.id) && p.hp > 0);
+        const deadPlayers = playersArray.filter(p => playersAraay.includes(p.id) && p.hp <= 0);
 
         let targetPlayer = null;
         let isAllDead = livingPlayers.length === 0;
