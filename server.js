@@ -84,18 +84,19 @@ if (missilex === targetx && missiley === targety) {
        
         
 });
-
-// 1. On convertit l'objet 'players' en un tableau de joueurs une seule fois
+// 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
-Object.keys(monsters).forEach(monsterId => {
-    const monster = monsters[monsterId.id]; // Accès direct à la référence d'origine
-    if (monster.class == 'Gobelin') {
-            console.log('GOBELIN');
+Object.values(monsters).forEach(monster => {
+    // Sécurité au cas où l'objet serait mal défini
+    if (!monster) return;
+
+    // Vérification de la classe du monstre
+    if (monster.class === 'Gobelin') {
         
-        // 2. On utilise 'playersArray' à la place de 'players'
-        const livingPlayers = playersArray.filter(p => playersArray.includes(p.id) && p.hp > 0);
-        const deadPlayers = playersArray.filter(p => playersArray.includes(p.id) && p.hp <= 0);
+        // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
+        const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
+        const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
 
         let targetPlayer = null;
         let isAllDead = livingPlayers.length === 0;
@@ -103,66 +104,64 @@ Object.keys(monsters).forEach(monsterId => {
         const candidates = isAllDead ? deadPlayers : livingPlayers;
         let minDistance = Infinity;
 
+        // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
         candidates.forEach(p => {
-            // Calcul de la distance brute (Distance de Manhattan)
-            const dist = Math.abs(monster.x - p.x) + Math.abs(monster.y - p.y);
+            const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
             if (dist < minDistance) {
                 minDistance = dist;
                 targetPlayer = p;
             }
         });
 
-        // Si aucun joueur n'existe du tout sur le serveur, le monstre ne bouge pas
+        // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
         if (!targetPlayer) return;
 
-        // Définir les coordonnées de la cible actuelle
-        const chaX = targetPlayer.x;
-        const chaY = targetPlayer.y;
+        // Coordonnées de la cible (XY et Yx)
+        const chaX = targetPlayer.XY;
+        const chaY = targetPlayer.Yx;
 
-        // Définir si le monstre est assez près pour interagir/fuir (ex: zone de détection de 300px)
         const distanceDetection = 300;
         const joueurnear = minDistance <= distanceDetection;
 
-        // 3. Logique de Poursuite ou Fuite
+        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
         if (isAllDead) {
             // FUITE des joueurs morts
-            if (!joueurnear) {
-                // Le monstre est assez loin des cadavres, il reste sur place
-            } else {
-                // Axe X
+            if (joueurnear) {
                 if (monster.x < chaX) {
-                    monsters[monsterId.id].x -= step; // Fuit à gauche
+                    monsters[monster.id].x -= step;
                 } else if (monster.x > chaX) {
-                    monsters[monsterId.id].x += step; // Fuit à droite
+                    monsters[monster.id].x += step;
                 } else {
-                    monsters[monsterId.id].x -= step;
+                    monsters[monster.id].x -= step;
                 }
-                // Axe Y
-                if (monsters[monsterId.id].y < chaY) {
-                    monster.y -= step; // Fuit en haut
-                } else if (monsters[monsterId.id].y > chaY) {
-                    monsters[monsterId.id].y += step; // Fuit en bas
+                
+                if (monster.y < chaY) {
+                    monsters[monster.id].y -= step;
+                } else if (monster.y > chaY) {
+                    monsters[monster.id].y += step;
                 } else {
-                    monsters[monsterId.id].y -= step;
+                    monsters[monster.id].y -= step;
                 }
             }
         } else {
-            // POURSUITE du joueur vivant le plus proche
-            if (Math.abs(monsters[monsterId.idf].x - chaX) <= step) {
-                monsters[monsterId.id].x = chaX;
+            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
+            // Axe X
+            if (Math.abs(monster.x - chaX) <= step) {
+                monsters[monster.id].x = chaX;
             } else {
-                monsters[monsterId.id].x += (monster.x < chaX) ? step : -step;
+                monsters[monster.id].x += (monster.x < chaX) ? step : -step;
             }
+            
+            // Axe Y
             if (Math.abs(monster.y - chaY) <= step) {
-                monsters[monsterId.id].y = chaY;
+                monsters[monster.id].y = chaY;
             } else {
-                monsters[monsterId.id].y += (monster.y < chaY) ? step : -step;
+                monsters[monster.id].y += (monster.y < chaY) ? step : -step;
             }
         }
     }
 });
-
-    // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
+// CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
 emitGlobalPositions();
 }
