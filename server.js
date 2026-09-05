@@ -86,17 +86,14 @@ if (missilex === targetx && missiley === targety) {
 });
 
 Object.values(monsters).forEach(monster => {
-        if (monster.class == Gobelin) {
+        if (monster.class == 'Gobelin') {
         
-        // 1. Filtrer les joueurs vivants et morts
-        // (Note: Remplacez 'players' par votre tableau/objet contenant les données de chaque joueur)
         const livingPlayers = players.filter(p => playerIds.includes(p.id) && p.hp > 0);
         const deadPlayers = players.filter(p => playerIds.includes(p.id) && p.hp <= 0);
 
         let targetPlayer = null;
         let isAllDead = livingPlayers.length === 0;
 
-        // 2. Trouver la cible la plus proche (vivante pour attaquer, ou morte pour fuir)
         const candidates = isAllDead ? deadPlayers : livingPlayers;
         let minDistance = Infinity;
 
