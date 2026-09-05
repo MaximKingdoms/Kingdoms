@@ -45,8 +45,7 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;}
         missilex = missilex - 15;
         }
     }
-} else 
-                          {
+} else {
         // Le mouvement est principalement vertical
     if (targety > missiley) {
         fireballdirection = "south";
@@ -57,7 +56,6 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;}
 if (missile.playerclass == "ranger") { missiley = missiley + 10;}
             missiley = missiley + 15;
         }
-    }
     }
     else {
         fireballdirection = "north";
@@ -70,7 +68,7 @@ if (missile.playerclass == "ranger") { missiley = missiley - 10;}
         }
     }
 }
-}
+
 
 // Mise à jour des coordonnées du missile
 missile.x = missilex;
