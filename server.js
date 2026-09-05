@@ -45,8 +45,8 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;}
                                       missilex = missilex - 15;
         }
     }
-} 
-} else {
+} else 
+                          {
         // Le mouvement est principalement vertical
     if (targety > missiley) {
         fireballdirection = "south";
