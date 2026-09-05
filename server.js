@@ -31,9 +31,10 @@ if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
         if (targetx - missilex < 5) {
             missilex = targetx;
         } else {
-if (missile.playerclass == "ranger") { missilex = missilex + 10;)
-                missilex = missilex + 15;
-        }
+if (missile.playerclass == "ranger") {
+        missilex = missilex + 10; }
+        missilex = missilex + 15;
+    }
     } else {
         fireballdirection = "west"; 
         if (missilex - targetx < 5) {
@@ -44,8 +45,9 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;)
                                       missilex = missilex - 15;
         }
     }
+} 
 } else {
-    // Le mouvement est principalement vertical
+        // Le mouvement est principalement vertical
     if (targety > missiley) {
         fireballdirection = "south";
         if (targety - missiley < 5) {
@@ -55,7 +57,9 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;)
 if (missile.playerclass == "ranger") { missiley = missiley + 10;)
             missiley = missiley + 15;
         }
-    } else {
+    }
+    }
+    else {
         fireballdirection = "north";
         if (missiley - targety < 5) {
             missiley = targety;
@@ -65,6 +69,7 @@ if (missile.playerclass == "ranger") { missiley = missiley + 10;)
             missiley = missiley - 15;
         }
     }
+}
 }
 
 // Mise à jour des coordonnées du missile
