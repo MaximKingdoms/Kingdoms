@@ -85,8 +85,8 @@ if (missilex === targetx && missiley === targety) {
         
 });
 
-monsters.forEach(monster => {
-    if (monster.class == Gobelin) {
+Object.values(monsters).forEach(monster => {
+        if (monster.class == Gobelin) {
         
         // 1. Filtrer les joueurs vivants et morts
         // (Note: Remplacez 'players' par votre tableau/objet contenant les données de chaque joueur)
