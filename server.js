@@ -88,7 +88,8 @@ if (missilex === targetx && missiley === targety) {
 // 1. On convertit l'objet 'players' en un tableau de joueurs une seule fois
 const playersArray = Object.values(players);
 
-Object.values(monsters).forEach(monster => {
+Object.keys(monsters).forEach(monsterId => {
+    const monster = monsters[monsterId]; // Accès direct à la référence d'origine
     if (monster.class == 'Gobelin') {
             console.log('GOBELIN');
         
@@ -130,32 +131,32 @@ Object.values(monsters).forEach(monster => {
             } else {
                 // Axe X
                 if (monster.x < chaX) {
-                    monster.x -= step; // Fuit à gauche
+                    monsters[monsterId].x -= step; // Fuit à gauche
                 } else if (monster.x > chaX) {
-                    monster.x += step; // Fuit à droite
+                    monsters[monsterId].x += step; // Fuit à droite
                 } else {
-                    monster.x -= step;
+                    monsters[monsterId].x -= step;
                 }
                 // Axe Y
-                if (monster.y < chaY) {
+                if (monsters[monsterId].y < chaY) {
                     monster.y -= step; // Fuit en haut
-                } else if (monster.y > chaY) {
-                    monster.y += step; // Fuit en bas
+                } else if (monsters[monsterId].y > chaY) {
+                    monsters[monsterId].y += step; // Fuit en bas
                 } else {
-                    monster.y -= step;
+                    monsters[monsterId].y -= step;
                 }
             }
         } else {
             // POURSUITE du joueur vivant le plus proche
-            if (Math.abs(monster.x - chaX) <= step) {
+            if (Math.abs(monsters[monsterId].x - chaX) <= step) {
                 monster.x = chaX;
             } else {
-                monster.x += (monster.x < chaX) ? step : -step;
+                monsters[monsterId]. += (monster.x < chaX) ? step : -step;
             }
             if (Math.abs(monster.y - chaY) <= step) {
-                monster.y = chaY;
+                monsters[monsterId].y = chaY;
             } else {
-                monster.y += (monster.y < chaY) ? step : -step;
+                monsters[monsterId].y += (monster.y < chaY) ? step : -step;
             }
         }
     }
