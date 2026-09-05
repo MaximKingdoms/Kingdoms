@@ -7,6 +7,7 @@ const http = require('http');
 let lastUpdateTime = Date.now();
 const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
 let listeMissiles = [];
+const monsters = {};
 
 function moveMonstersServer() {
 emitGlobalPositions();
@@ -199,7 +200,6 @@ const pool = mysql.createPool({
 // Le stockage en RAM
 const joueursEnLigne = {}; 
 const players = {};
-const monsters = {};
 io.on('connection', (socket) => {
   console.log('Un utilisateur tente de se connecter :', socket.id);
 
