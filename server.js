@@ -54,7 +54,7 @@ if (missile.playerclass == "ranger") { missilex = missilex - 10;}
             missiley = targety;
         } else {
                 
-if (missile.playerclass == "ranger") { missiley = missiley + 10;)
+if (missile.playerclass == "ranger") { missiley = missiley + 10;}
             missiley = missiley + 15;
         }
     }
@@ -65,7 +65,7 @@ if (missile.playerclass == "ranger") { missiley = missiley + 10;)
             missiley = targety;
         } else {
                 
-if (missile.playerclass == "ranger") { missiley = missiley + 10;)
+if (missile.playerclass == "ranger") { missiley = missiley - 10;}
             missiley = missiley - 15;
         }
     }
