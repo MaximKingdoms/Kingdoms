@@ -87,6 +87,7 @@ if (missilex === targetx && missiley === targety) {
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
+const setp = 0.8;
 Object.values(monsters).forEach(monster => {
     // Sécurité au cas où l'objet serait mal défini
     if (!monster) return;
@@ -171,7 +172,7 @@ emitGlobalPositions();
 // Dans votre fonction de configuration/connexion :
 if (!gameInterval) { 
     // On ne lance l'intervalle que s'il n'existe pas déjà
-    gameInterval = setInterval(moveMonstersServer, 110);
+    gameInterval = setInterval(moveMonstersServer, 16);
 }
 const { Server } = require('socket.io');
 
