@@ -90,6 +90,7 @@ const playersArray = Object.values(players);
 
 Object.values(monsters).forEach(monster => {
     if (monster.class == 'Gobelin') {
+            console.log('GOBELIN');
         
         // 2. On utilise 'playersArray' à la place de 'players'
         const livingPlayers = playersArray.filter(p => playersArray.includes(p.id) && p.hp > 0);
