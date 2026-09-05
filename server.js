@@ -42,7 +42,7 @@ if (missile.playerclass == "ranger") {
         } else {
 
 if (missile.playerclass == "ranger") { missilex = missilex - 10;}
-                                      missilex = missilex - 15;
+        missilex = missilex - 15;
         }
     }
 } else 
