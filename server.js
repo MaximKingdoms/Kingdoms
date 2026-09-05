@@ -85,6 +85,8 @@ if (missilex === targetx && missiley === targety) {
 });
 
 
+        monsters.forEach(monster => {
+
         if (monster.class == "Gobelin") {
         // 2. Logique de Poursuite ou Fuite avec sécurité "Anti-Tremblement"
         if (playerIds.length === 0 || playerHp <= 0) {
@@ -130,6 +132,7 @@ if (missilex === targetx && missiley === targety) {
             }
         }
         }
+        });
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
 emitGlobalPositions();
