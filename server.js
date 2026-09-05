@@ -85,11 +85,15 @@ if (missilex === targetx && missiley === targety) {
         
 });
 
+// 1. On convertit l'objet 'players' en un tableau de joueurs une seule fois
+const playersArray = Object.values(players);
+
 Object.values(monsters).forEach(monster => {
-        if (monster.class == 'Gobelin') {
+    if (monster.class == 'Gobelin') {
         
-        const livingPlayers = players.filter(p => playerIds.includes(p.id) && p.hp > 0);
-        const deadPlayers = players.filter(p => playerIds.includes(p.id) && p.hp <= 0);
+        // 2. On utilise 'playersArray' à la place de 'players'
+        const livingPlayers = playersArray.filter(p => playerIds.includes(p.id) && p.hp > 0);
+        const deadPlayers = playersArray.filter(p => playerIds.includes(p.id) && p.hp <= 0);
 
         let targetPlayer = null;
         let isAllDead = livingPlayers.length === 0;
@@ -98,7 +102,7 @@ Object.values(monsters).forEach(monster => {
         let minDistance = Infinity;
 
         candidates.forEach(p => {
-            // Calcul de la distance brute (Distance de Manhattan ou Euclidienne)
+            // Calcul de la distance brute (Distance de Manhattan)
             const dist = Math.abs(monster.x - p.x) + Math.abs(monster.y - p.y);
             if (dist < minDistance) {
                 minDistance = dist;
@@ -142,13 +146,11 @@ Object.values(monsters).forEach(monster => {
             }
         } else {
             // POURSUITE du joueur vivant le plus proche
-            // Axe X : Si le monstre est plus proche du joueur que la taille du step, il se colle sur lui
             if (Math.abs(monster.x - chaX) <= step) {
                 monster.x = chaX;
             } else {
                 monster.x += (monster.x < chaX) ? step : -step;
             }
-            // Axe Y
             if (Math.abs(monster.y - chaY) <= step) {
                 monster.y = chaY;
             } else {
