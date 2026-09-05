@@ -84,46 +84,72 @@ if (missilex === targetx && missiley === targety) {
         
 });
 
+monsters.forEach(monster => {
+    if (monster.class == Gobelin) {
+        
+        // 1. Filtrer les joueurs vivants et morts
+        // (Note: Remplacez 'players' par votre tableau/objet contenant les données de chaque joueur)
+        const livingPlayers = players.filter(p => playerIds.includes(p.id) && p.hp > 0);
+        const deadPlayers = players.filter(p => playerIds.includes(p.id) && p.hp <= 0);
 
-        monsters.forEach(monster => {
+        let targetPlayer = null;
+        let isAllDead = livingPlayers.length === 0;
 
-        if (monster.class == "Gobelin") {
-        // 2. Logique de Poursuite ou Fuite avec sécurité "Anti-Tremblement"
-        if (playerIds.length === 0 || playerHp <= 0) {
-            // FUITE
-            // Sécurité : Si aucun joueur n'existe, on ne bouge pas
+        // 2. Trouver la cible la plus proche (vivante pour attaquer, ou morte pour fuir)
+        const candidates = isAllDead ? deadPlayers : livingPlayers;
+        let minDistance = Infinity;
+
+        candidates.forEach(p => {
+            // Calcul de la distance brute (Distance de Manhattan ou Euclidienne)
+            const dist = Math.abs(monster.x - p.x) + Math.abs(monster.y - p.y);
+            if (dist < minDistance) {
+                minDistance = dist;
+                targetPlayer = p;
+            }
+        });
+
+        // Si aucun joueur n'existe du tout sur le serveur, le monstre ne bouge pas
+        if (!targetPlayer) return;
+
+        // Définir les coordonnées de la cible actuelle
+        const chaX = targetPlayer.x;
+        const chaY = targetPlayer.y;
+
+        // Définir si le monstre est assez près pour interagir/fuir (ex: zone de détection de 300px)
+        const distanceDetection = 300;
+        const joueurnear = minDistance <= distanceDetection;
+
+        // 3. Logique de Poursuite ou Fuite
+        if (isAllDead) {
+            // FUITE des joueurs morts
             if (!joueurnear) {
-                // Le monstre reste sur place
+                // Le monstre est assez loin des cadavres, il reste sur place
             } else {
                 // Axe X
                 if (monster.x < chaX) {
-                    monster.x -= step; // Le joueur est à droite, le monstre fuit à gauche
+                    monster.x -= step; // Fuit à gauche
                 } else if (monster.x > chaX) {
-                    monster.x += step; // Le joueur est à gauche, le monstre fuit à droite
+                    monster.x += step; // Fuit à droite
                 } else {
-                    // Égalité parfaite (le monstre est sur le joueur) : on force une fuite aléatoire ou fixe (ex: gauche)
-                    monster.x -= step; 
+                    monster.x -= step;
                 }
-
                 // Axe Y
                 if (monster.y < chaY) {
-                    monster.y -= step; // Le joueur est en bas, le monstre fuit en haut
+                    monster.y -= step; // Fuit en haut
                 } else if (monster.y > chaY) {
-                    monster.y += step; // Le joueur est en haut, le monstre fuit en bas
+                    monster.y += step; // Fuit en bas
                 } else {
-                    // Égalité parfaite : on force une fuite fixe (ex: haut)
                     monster.y -= step;
                 }
             }
         } else {
-            // POURSUITE
-            // Axe X : Si le monstre est plus proche du joueur que la taille du "step", il se colle sur lui
+            // POURSUITE du joueur vivant le plus proche
+            // Axe X : Si le monstre est plus proche du joueur que la taille du step, il se colle sur lui
             if (Math.abs(monster.x - chaX) <= step) {
                 monster.x = chaX;
             } else {
                 monster.x += (monster.x < chaX) ? step : -step;
             }
-
             // Axe Y
             if (Math.abs(monster.y - chaY) <= step) {
                 monster.y = chaY;
@@ -131,8 +157,9 @@ if (missilex === targetx && missiley === targety) {
                 monster.y += (monster.y < chaY) ? step : -step;
             }
         }
-        }
-        });
+    }
+});
+
     // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
 emitGlobalPositions();
