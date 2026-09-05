@@ -149,9 +149,9 @@ Object.keys(monsters).forEach(monsterId => {
         } else {
             // POURSUITE du joueur vivant le plus proche
             if (Math.abs(monsters[monsterId].x - chaX) <= step) {
-                monster.x = chaX;
+                monsters[monsterId].x = chaX;
             } else {
-                monsters[monsterId]. += (monster.x < chaX) ? step : -step;
+                monsters[monsterId].x += (monster.x < chaX) ? step : -step;
             }
             if (Math.abs(monster.y - chaY) <= step) {
                 monsters[monsterId].y = chaY;
