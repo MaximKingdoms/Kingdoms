@@ -251,7 +251,7 @@ const listeMonstres = [];
 
       // Diffuse la nouvelle position aux autres joueurs
 
-    console.log(`Monstre ajouté !`);
+    console.log(`Monstre ' + monsters[monsterid}.class + 'ajouté !`);
 });
 
 // 2. Écoute de l'événement à chaque tir
