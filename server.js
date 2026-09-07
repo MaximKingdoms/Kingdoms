@@ -150,7 +150,7 @@ Object.values(monsters).forEach(monster => {
 });
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
-emitGlobalPositions();
+ emitGlobalPositions();
 }
 
   let gameInterval = null; // Variable globale pour stocker l'intervalle
@@ -158,7 +158,7 @@ emitGlobalPositions();
 // Dans votre fonction de configuration/connexion :
 if (!gameInterval) { 
     // On ne lance l'intervalle que s'il n'existe pas déjà
-    gameInterval = setInterval(moveMonstersServer, 16);
+    gameInterval = setInterval(moveMonstersServer, 50);
 }
 const { Server } = require('socket.io');
 
@@ -290,20 +290,17 @@ socket.on('missile', (data) => {
         targety: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
         playershot: data.id,
-        playerclass: players[data.id].Class
+        playerclass: players[data.id].Class,
+        createdAt: Date.now();
+     
     
     };
+
 
     // 4. Ajout du missile dans le tableau
     listeMissiles.push(nouveauMissile);
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
-        setTimeout(() => {
-                if (nouveauMissile) {
-    delete listeMissiles[nouveauMissile];
-                }
-    console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
-}, 5000);
 });
 
   // 4. Écouter les mouvements du joueur en temps réel
@@ -368,7 +365,11 @@ function emitGlobalPositions() {
       power: missile.power
     }))
   });
+     listeMissiles.forEach((missile) => {
 
+if (Date.now() - missile.createdAt > 5000) { 
+ missile.remove();
+}
 }
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
