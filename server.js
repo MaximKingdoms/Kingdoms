@@ -47,7 +47,7 @@ listeMissiles.forEach((missile) => {
     } else {
         // Avancement en diagonale exacte
         missile.x += missile.dirX * stepSpeed;
-        missile.y += missile.dirY * stepspeed; // Correction : s'aligner sur stepSpeed
+        missile.y += missile.dirY * stepSpeed; // Correction : s'aligner sur stepSpeed
     }
 
     // 3. EXTINCTION LOGIQUE
