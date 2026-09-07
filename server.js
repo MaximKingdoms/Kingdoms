@@ -104,8 +104,8 @@ Object.values(monsters).forEach(monster => {
         if (!targetPlayer) return;
 
         // Coordonnées de la cible (XY et Yx)
-        const chaX = targetPlayer.XY;
-        const chaY = targetPlayer.Yx;
+        const chaX = targetPlayer.XY + 25;
+        const chaY = targetPlayer.Yx + 25;
 
         const distanceDetection = Infinity;
         const joueurnear = minDistance <= distanceDetection;
