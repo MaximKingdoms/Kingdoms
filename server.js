@@ -291,7 +291,7 @@ socket.on('missile', (data) => {
         power: data.hp, // Optionnel : vitesse de déplacement
         playershot: data.id,
         playerclass: players[data.id].Class,
-        createdAt: Date.now();
+        createdAt: Date.now()
      
     
     };
