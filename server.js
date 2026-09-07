@@ -288,8 +288,8 @@ socket.on('missile', (data) => {
     const nouveauMissile = {
             
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
-        x: players[data.id].XY ,
-        y: players[data.id].Yx,
+        x: players[data.id].XY +25,
+        y: players[data.id].Yx +25,
         targetx: posX,
         targety: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
