@@ -314,8 +314,9 @@ socket.on('missile', (data) => {
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
         setTimeout(() => {
+                if (nouveaumissile) {
     listeMissiles[nouveaumissile.id].remove();
-    
+                }
     console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
 }, 5000);
 });
