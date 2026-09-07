@@ -18,52 +18,51 @@ listeMissiles.forEach((missile) => {
     const targetx = Number(missile.targetx);
     const targety = Number(missile.targety);
 
-    // 1. INITIALISATION DE LA DIAGONALE PURE (Au premier tick du missile)
+    // 1. INITIALISATION DE LA DIAGONALE (Au premier tick du missile)
     if (!missile.dirX && !missile.dirY) {
         const diffX = targetx - missile.x;
         const diffY = targety - missile.y;
         
-        // Calcul de la distance réelle vers la cible
+        // Calcul de la distance initiale que le missile DOIT faire
         const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
 
-        // Calcul du vecteur unitaire (direction de la ligne droite)
+        // Vecteur de direction (ligne droite pure)
         missile.dirX = diffX / distanceOrigine;
         missile.dirY = diffY / distanceOrigine;
+
+        // 🌟 LA RECHARGE MAGIQUE : On lui donne l'autorisation de voyager 25px de plus
+        missile.distanceMaximale = distanceOrigine + 25;
+        missile.distanceParcourue = 0;
     }
 
-    // Vitesse fixe par tick (ajustée pour l'intervalle de 50ms)
+    // Vitesse fixe par tick (ajustée pour tes 50ms)
     const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
 
-    // Calcul de la distance restante avant la cible programmée
-    const currentDiffX = targetx - missile.x;
-    const currentDiffY = targety - missile.y;
-    const distanceRestante = Math.sqrt(currentDiffX * currentDiffX + currentDiffY * currentDiffY);
-
-    // 2. LOGIQUE DE MOUVEMENT EN LIGNE DROITE
-    if (distanceRestante <= stepSpeed) {
-        // ANTI-DÉPASSEMENT : Si le pas est plus grand que le reste, on se bloque PILE dessus
-        missile.x = targetx;
-        missile.y = targety;
-    } else {
-        // Avancement en diagonale exacte
-        missile.x += missile.dirX * stepSpeed;
-        missile.y += missile.dirY * stepSpeed; // Correction : s'aligner sur stepSpeed
+    // Calcul du pas à faire (on ne doit pas dépasser la distance max)
+    let pasCeTick = stepSpeed;
+    if (missile.distanceParcourue + stepSpeed >= missile.distanceMaximale) {
+        pasCeTick = missile.distanceMaximale - missile.distanceParcourue;
     }
 
-    // 3. EXTINCTION LOGIQUE
-    if (missile.x === targetx && missile.y === targety) {
-        console.log(`Missile arrivé au bout de sa course : ID ${missile.id}`);
-        // Il est supprimé ici car il a fini son voyage sans rien toucher
+    // 2. LOGIQUE DE MOUVEMENT (Avancement le long de ta ligne droite parfaite)
+    missile.x += missile.dirX * pasCeTick;
+    missile.y += missile.dirY * pasCeTick;
+    missile.distanceParcourue += pasCeTick;
+
+    // 3. EXTINCTION LOGIQUE (Uniquement quand il a fini ses +25px bonus)
+    if (missile.distanceParcourue >= missile.distanceMaximale) {
+        console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
+        // Il meurt ici (non ajouté aux survivants)
     } else {
-        // Tant qu'il n'est pas sur la cible, il continue son transit
+        // Le missile est toujours en transit, il survit pour le prochain tick
         survivantsMissiles.push(missile);
     }
 });
 
 // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
 listeMissiles = survivantsMissiles;
-// 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
-const playersArray = Object.values(players);
+
+        const playersArray = Object.values(players);
 
 const step = 2.4;
         
