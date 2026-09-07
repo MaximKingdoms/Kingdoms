@@ -15,56 +15,47 @@ const survivantsMissiles = [];
 // --- SUR LE SERVEUR (Dans moveMonstersServer) ---
 
 listeMissiles.forEach((missile) => {
-    // 1. INITIALISATION DE LA DIAGONALE ET DU DÉPASSEMENT (Au premier tick du missile)
-    if (!missile.extendedTargetX || !missile.extendedTargetY) {
-        const startX = missile.x;
-        const startY = missile.y;
-        const origTargetX = Number(missile.targetx);
-        const origTargetY = Number(missile.targety);
+    const targetx = Number(missile.targetx);
+    const targety = Number(missile.targety);
 
-        // Calcul de la distance totale vers la cible d'origine
-        const diffX = origTargetX - startX;
-        const diffY = origTargetY - startY;
+    // 1. INITIALISATION DE LA DIAGONALE PURE (Au premier tick du missile)
+    if (!missile.dirX && !missile.dirY) {
+        const diffX = targetx - missile.x;
+        const diffY = targety - missile.y;
+        
+        // Calcul de la distance réelle vers la cible
         const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
 
-        // Calcul du vecteur unitaire (la direction de la ligne droite, entre -1 et 1)
+        // Calcul du vecteur unitaire (direction de la ligne droite)
         missile.dirX = diffX / distanceOrigine;
         missile.dirY = diffY / distanceOrigine;
-
-        // 🌟 EXTENSION DE LA CIBLE : On repousse la destination finale de 25 pixels dans l'axe de trajectoire
-        missile.extendedTargetX = origTargetX + (missile.dirX * 25);
-        missile.extendedTargetY = origTargetY + (missile.dirY * 25);
     }
-
-    // Récupération de notre destination finale étendue
-    const finalTargetX = missile.extendedTargetX;
-    const finalTargetY = missile.extendedTargetY;
 
     // Vitesse fixe par tick (ajustée pour l'intervalle de 50ms)
     const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
 
-    // Calcul de la distance restante avant la fin de la trajectoire étendue
-    const currentDiffX = finalTargetX - missile.x;
-    const currentDiffY = finalTargetY - missile.y;
+    // Calcul de la distance restante avant la cible programmée
+    const currentDiffX = targetx - missile.x;
+    const currentDiffY = targety - missile.y;
     const distanceRestante = Math.sqrt(currentDiffX * currentDiffX + currentDiffY * currentDiffY);
 
-    // 2. LOGIQUE DE MOUVEMENT EN LIGNE DROITE DIRECTE
+    // 2. LOGIQUE DE MOUVEMENT EN LIGNE DROITE
     if (distanceRestante <= stepSpeed) {
-        // 🌟 ANTI-DÉPASSEMENT : Si le pas est plus grand que le reste à parcourir, on se bloque PILE sur la fin
-        missile.x = finalTargetX;
-        missile.y = finalTargetY;
+        // ANTI-DÉPASSEMENT : Si le pas est plus grand que le reste, on se bloque PILE dessus
+        missile.x = targetx;
+        missile.y = targety;
     } else {
-        // Avancement fluide sur la diagonale exacte
+        // Avancement en diagonale exacte
         missile.x += missile.dirX * stepSpeed;
-        missile.y += missile.dirY * stepSpeed;
+        missile.y += missile.dirY * speed; // Correction : s'aligner sur stepSpeed
     }
 
     // 3. EXTINCTION LOGIQUE
-    if (missile.x === finalTargetX && missile.y === finalTargetY) {
-        console.log(`Missile arrivé au bout de sa course étendue (+25px) : ID ${missile.id}`);
-        // Il est supprimé ici (non ajouté aux survivants) car il a fini son voyage sans rien toucher
+    if (missile.x === targetx && missile.y === targety) {
+        console.log(`Missile arrivé au bout de sa course : ID ${missile.id}`);
+        // Il est supprimé ici car il a fini son voyage sans rien toucher
     } else {
-        // Tant qu'il n'est pas pile sur la destination finale, il continue son transit
+        // Tant qu'il n'est pas sur la cible, il continue son transit
         survivantsMissiles.push(missile);
     }
 });
