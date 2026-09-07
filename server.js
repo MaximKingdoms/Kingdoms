@@ -10,69 +10,67 @@ let listeMissiles = [];
 const monsters = {};
 
 function moveMonstersServer() {
- const survivantsMissiles = [];
+const survivantsMissiles = [];
         
 // --- SUR LE SERVEUR (Dans moveMonstersServer) ---
 
 listeMissiles.forEach((missile) => {
-    const targetx = Number(missile.targetx);
-    const targety = Number(missile.targety);
-    let missilex = missile.x;
-    let missiley = missile.y;
+    // 1. INITIALISATION DE LA DIAGONALE ET DU DÉPASSEMENT (Au premier tick du missile)
+    if (!missile.extendedTargetX || !missile.extendedTargetY) {
+        const startX = missile.x;
+        const startY = missile.y;
+        const origTargetX = Number(missile.targetx);
+        const origTargetY = Number(missile.targety);
+
+        // Calcul de la distance totale vers la cible d'origine
+        const diffX = origTargetX - startX;
+        const diffY = origTargetY - startY;
+        const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
+
+        // Calcul du vecteur unitaire (la direction de la ligne droite, entre -1 et 1)
+        missile.dirX = diffX / distanceOrigine;
+        missile.dirY = diffY / distanceOrigine;
+
+        // 🌟 EXTENSION DE LA CIBLE : On repousse la destination finale de 25 pixels dans l'axe de trajectoire
+        missile.extendedTargetX = origTargetX + (missile.dirX * 25);
+        missile.extendedTargetY = origTargetY + (missile.dirY * 25);
+    }
+
+    // Récupération de notre destination finale étendue
+    const finalTargetX = missile.extendedTargetX;
+    const finalTargetY = missile.extendedTargetY;
 
     // Vitesse fixe par tick (ajustée pour l'intervalle de 50ms)
     const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
 
-    if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
-        // --- TRANSIT HORIZONTAL ---
-        if (targetx > missilex) {
-            // 🌟 ANTI-DÉPASSEMENT : Si le pas est plus grand que la distance restante, on se bloque PILE sur la cible
-            if (targetx - missilex <= stepSpeed) {
-                missilex = targetx;
-            } else {
-                missilex += stepSpeed;
-            }
-        } else {
-            if (missilex - targetx <= stepSpeed) {
-                missilex = targetx;
-            } else {
-                missilex -= stepSpeed;
-            }
-        }
+    // Calcul de la distance restante avant la fin de la trajectoire étendue
+    const currentDiffX = finalTargetX - missile.x;
+    const currentDiffY = finalTargetY - missile.y;
+    const distanceRestante = Math.sqrt(currentDiffX * currentDiffX + currentDiffY * currentDiffY);
+
+    // 2. LOGIQUE DE MOUVEMENT EN LIGNE DROITE DIRECTE
+    if (distanceRestante <= stepSpeed) {
+        // 🌟 ANTI-DÉPASSEMENT : Si le pas est plus grand que le reste à parcourir, on se bloque PILE sur la fin
+        missile.x = finalTargetX;
+        missile.y = finalTargetY;
     } else {
-        // --- TRANSIT VERTICAL ---
-        if (targety > missiley) {
-            if (targety - missiley <= stepSpeed) {
-                missiley = targety;
-            } else {
-                missiley += stepSpeed;
-            }
-        } else {
-            if (missiley - targety <= stepSpeed) {
-                missiley = targety;
-            } else {
-                missiley -= stepSpeed;
-            }
-        }
+        // Avancement fluide sur la diagonale exacte
+        missile.x += missile.dirX * stepSpeed;
+        missile.y += missile.dirY * stepSpeed;
     }
 
-    // Mise à jour de la position de transit réelle
-    missile.x = missilex;
-    missile.y = missiley;
-
-    // 🌟 EXTINCTION LOGIQUE : Le missile n'est supprimé QUE s'il a atteint le pixel EXACT programmé
-    if (missilex === targetx && missiley === targety) {
-        console.log(`Missile arrivé à destination programmée : ID ${missile.id}`);
-        // Il est supprimé ici car il a fini son voyage sans rien toucher
+    // 3. EXTINCTION LOGIQUE
+    if (missile.x === finalTargetX && missile.y === finalTargetY) {
+        console.log(`Missile arrivé au bout de sa course étendue (+25px) : ID ${missile.id}`);
+        // Il est supprimé ici (non ajouté aux survivants) car il a fini son voyage sans rien toucher
     } else {
-        // Tant qu'il n'est pas pile sur la destination, il continue son transit
+        // Tant qu'il n'est pas pile sur la destination finale, il continue son transit
         survivantsMissiles.push(missile);
     }
 });
 
-// On applique le nettoyage du tableau sur le serveur
-   // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
-    listeMissiles = survivantsMissiles;
+// On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
+listeMissiles = survivantsMissiles;
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
