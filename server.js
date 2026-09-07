@@ -12,62 +12,66 @@ const monsters = {};
 function moveMonstersServer() {
  const survivantsMissiles = [];
         
-    listeMissiles.forEach((missile) => {
-        const targetx = Number(missile.targetx);
-        const targety = Number(missile.targety);
-        let missilex = missile.x;
-        let missiley = missile.y;
+// --- SUR LE SERVEUR (Dans moveMonstersServer) ---
 
-        // Déterminer la vitesse selon la classe
-        const stepSpeed = (missile.playerclass === "ranger") ? 75 : 45;
+listeMissiles.forEach((missile) => {
+    const targetx = Number(missile.targetx);
+    const targety = Number(missile.targety);
+    let missilex = missile.x;
+    let missiley = missile.y;
 
-        if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
-            // Mouvement horizontal
-            if (targetx > missilex) {
-                // CORRECTION ANTI-DÉPASSEMENT : Si le pas est plus grand que la distance restante
-                if (targetx - missilex <= stepSpeed) {
-                    missilex = targetx;
-                } else {
-                    missilex += stepSpeed;
-                }
+    // Vitesse fixe par tick (ajustée pour l'intervalle de 50ms)
+    const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
+
+    if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
+        // --- TRANSIT HORIZONTAL ---
+        if (targetx > missilex) {
+            // 🌟 ANTI-DÉPASSEMENT : Si le pas est plus grand que la distance restante, on se bloque PILE sur la cible
+            if (targetx - missilex <= stepSpeed) {
+                missilex = targetx;
             } else {
-                if (missilex - targetx <= stepSpeed) {
-                    missilex = targetx;
-                } else {
-                    missilex -= stepSpeed;
-                }
+                missilex += stepSpeed;
             }
         } else {
-            // Mouvement vertical
-            if (targety > missiley) {
-                if (targety - missiley <= stepSpeed) {
-                    missiley = targety;
-                } else {
-                    missiley += stepSpeed;
-                }
+            if (missilex - targetx <= stepSpeed) {
+                missilex = targetx;
             } else {
-                if (missiley - targety <= stepSpeed) {
-                    missiley = targety;
-                } else {
-                    missiley -= stepSpeed;
-                }
+                missilex -= stepSpeed;
             }
         }
-
-        // Mise à jour des coordonnées
-        missile.x = missilex;
-        missile.y = missiley;
-
-        // Vérification de l'impact
-        if (missilex === targetx && missiley === targety) {
-            console.log(`Missile détruit à l'impact ! ID: ${missile.id}`);
-            // On ne l'ajoute pas aux survivants, il est donc supprimé
+    } else {
+        // --- TRANSIT VERTICAL ---
+        if (targety > missiley) {
+            if (targety - missiley <= stepSpeed) {
+                missiley = targety;
+            } else {
+                missiley += stepSpeed;
+            }
         } else {
-            survivantsMissiles.push(missile);
+            if (missiley - targety <= stepSpeed) {
+                missiley = targety;
+            } else {
+                missiley -= stepSpeed;
+            }
         }
-    });
+    }
 
-    // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
+    // Mise à jour de la position de transit réelle
+    missile.x = missilex;
+    missile.y = missiley;
+
+    // 🌟 EXTINCTION LOGIQUE : Le missile n'est supprimé QUE s'il a atteint le pixel EXACT programmé
+    if (missilex === targetx && missiley === targety) {
+        console.log(`Missile arrivé à destination programmée : ID ${missile.id}`);
+        // Il est supprimé ici car il a fini son voyage sans rien toucher
+    } else {
+        // Tant qu'il n'est pas pile sur la destination, il continue son transit
+        survivantsMissiles.push(missile);
+    }
+});
+
+// On applique le nettoyage du tableau sur le serveur
+   // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
     listeMissiles = survivantsMissiles;
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
