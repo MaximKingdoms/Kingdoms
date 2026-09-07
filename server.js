@@ -107,7 +107,7 @@ Object.values(monsters).forEach(monster => {
         const chaX = targetPlayer.XY;
         const chaY = targetPlayer.Yx;
 
-        const distanceDetection = 300;
+        const distanceDetection = Infinity;
         const joueurnear = minDistance <= distanceDetection;
 
         // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
