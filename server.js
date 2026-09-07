@@ -10,80 +10,65 @@ let listeMissiles = [];
 const monsters = {};
 
 function moveMonstersServer() {
-emitGlobalPositions();
-
+ const survivantsMissiles = [];
         
     listeMissiles.forEach((missile) => {
-   
-const targetx = Number(missile.targetx);
-const targety = Number(missile.targety);
-missilex = missile.x;
-missiley = missile.y;
+        const targetx = Number(missile.targetx);
+        const targety = Number(missile.targety);
+        let missilex = missile.x;
+        let missiley = missile.y;
 
-//document.getElementById("testtext2").textContent =  "x: y : "+ String(targetx+" "+String(targety));
+        // Déterminer la vitesse selon la classe
+        const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
 
-
-//if (matrixplyer[missile.id][5] == "alchimist") {
-if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
-    // Le mouvement est principalement horizontal
-    if (targetx > missilex) {
-        fireballdirection = "east";  
-        // Si la cible est à moins de 5px, on se positionne dessus, sinon on avance de 5px
-        if (targetx - missilex < 5) {
-            missilex = targetx;
+        if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
+            // Mouvement horizontal
+            if (targetx > missilex) {
+                // CORRECTION ANTI-DÉPASSEMENT : Si le pas est plus grand que la distance restante
+                if (targetx - missilex <= stepSpeed) {
+                    missilex = targetx;
+                } else {
+                    missilex += stepSpeed;
+                }
+            } else {
+                if (missilex - targetx <= stepSpeed) {
+                    missilex = targetx;
+                } else {
+                    missilex -= stepSpeed;
+                }
+            }
         } else {
-if (missile.playerclass == "ranger") {
-        missilex = missilex + 10; }
-        missilex = missilex + 15;
-    }
-    } else {
-        fireballdirection = "west"; 
-        if (missilex - targetx < 5) {
-            missilex = targetx;
-        } else {
-
-if (missile.playerclass == "ranger") { missilex = missilex - 10;}
-        missilex = missilex - 15;
+            // Mouvement vertical
+            if (targety > missiley) {
+                if (targety - missiley <= stepSpeed) {
+                    missiley = targety;
+                } else {
+                    missiley += stepSpeed;
+                }
+            } else {
+                if (missiley - targety <= stepSpeed) {
+                    missiley = targety;
+                } else {
+                    missiley -= stepSpeed;
+                }
+            }
         }
-    }
-} else {
-        // Le mouvement est principalement vertical
-    if (targety > missiley) {
-        fireballdirection = "south";
-        if (targety - missiley < 5) {
-            missiley = targety;
+
+        // Mise à jour des coordonnées
+        missile.x = missilex;
+        missile.y = missiley;
+
+        // Vérification de l'impact
+        if (missilex === targetx && missiley === targety) {
+            console.log(`Missile détruit à l'impact ! ID: ${missile.id}`);
+            // On ne l'ajoute pas aux survivants, il est donc supprimé
         } else {
-                
-if (missile.playerclass == "ranger") { missiley = missiley + 10;}
-            missiley = missiley + 15;
+            survivantsMissiles.push(missile);
         }
-    }
-    else {
-        fireballdirection = "north";
-        if (missiley - targety < 5) {
-            missiley = targety;
-        } else {
-                
-if (missile.playerclass == "ranger") { missiley = missiley - 10;}
-            missiley = missiley - 15;
-        }
-    }
-}
+    });
 
-
-// Mise à jour des coordonnées du missile
-missile.x = missilex;
-missile.y = missiley;
-
-// Vérification de l'impact (maintenant que les positions peuvent être exactement égales)
-if (missilex === targetx && missiley === targety) {
-    listeMissiles = listeMissiles.filter(m => m.id !== missile.id); // Utilisation de missile.id ou data.id selon votre contexte
-    console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
-}
-
-       
-        
-});
+    // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
+    listeMissiles = survivantsMissiles;
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
@@ -354,7 +339,8 @@ socket.on('playerMoved2', (donneesPosition) => {
 
 // 1. NOUVELLE FONCTION : Émet toutes les positions du jeu d'un coup
 function emitGlobalPositions() {
-  io.emit('globalPositions', {
+   
+        io.emit('globalPositions', {
     players: Object.keys(players).map(id => ({
       id: id,
       Nomhero: players[id].Nomhero,
@@ -382,6 +368,7 @@ function emitGlobalPositions() {
       power: missile.power
     }))
   });
+
 }
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
