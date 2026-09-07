@@ -297,6 +297,7 @@ socket.on('missile', (data) => {
 
     // 3. Création du nouvel objet missile
     const nouveauMissile = {
+            
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
         x: players[data.id].XY,
         y: players[data.id].Yx,
@@ -312,6 +313,11 @@ socket.on('missile', (data) => {
     listeMissiles.push(nouveauMissile);
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+        setTimeout(() => {
+    listeMissiles = listeMissiles.filter(missile => missile.id !== data.id);
+    
+    console.log(`Missile détruit ! Total en cours : ${listeMissiles.length}`);
+}, 5000);
 });
 
   // 4. Écouter les mouvements du joueur en temps réel
