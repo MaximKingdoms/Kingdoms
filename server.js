@@ -277,15 +277,15 @@ const listeMonstres = [];
 // 2. Écoute de l'événement à chaque tir
 socket.on('missile', (data) => {
     // Valider ou assigner des valeurs par défaut
-    const posX = data.XY ?? 0;
-    const posY = data.Yx ?? 0;
+    const posX = (data.XY +25) ?? 0;
+    const posY = (data.Yx +25) ?? 0;
 
     // 3. Création du nouvel objet missile
     const nouveauMissile = {
             
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
-        x: players[data.id].XY,
-        y: players[data.id].Yx,
+        x: players[data.id].XY + 25,
+        y: players[data.id].Yx + 25,
         targetx: posX,
         targety: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
