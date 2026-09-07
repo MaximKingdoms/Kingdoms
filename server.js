@@ -371,6 +371,7 @@ if (Date.now() - missile.createdAt > 5000) {
  missile.remove();
 }
 });
+}
                            
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
