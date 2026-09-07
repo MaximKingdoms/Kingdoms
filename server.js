@@ -19,7 +19,7 @@ function moveMonstersServer() {
         let missiley = missile.y;
 
         // Déterminer la vitesse selon la classe
-        const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
+        const stepSpeed = (missile.playerclass === "ranger") ? 75 : 45;
 
         if (Math.abs(targetx - missilex) > Math.abs(targety - missiley)) {
             // Mouvement horizontal
@@ -72,7 +72,7 @@ function moveMonstersServer() {
 // 1. On extrait les objets joueurs depuis le dictionnaire global 'players'
 const playersArray = Object.values(players);
 
-const step = 0.8;
+const step = 2.4;
         
 Object.values(monsters).forEach(monster => {
     // Sécurité au cas où l'objet serait mal défini
