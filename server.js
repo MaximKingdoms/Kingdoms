@@ -250,46 +250,54 @@ listeMissiles.forEach((missile) => {
 // On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
 listeMissiles = survivantsMissiles;
 
-        const playersArray = Object.values(players);
-
+const playersArray = Object.values(players);
 const step = 2.4;
         
 Object.values(monsters).forEach(monster => {
     // Sécurité au cas où l'objet serait mal défini
     if (!monster) return;
 
-    // Vérification de la classe du monstre
+    // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
+    const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
+    const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
+
+    let targetPlayer = null;
+    let isAllDead = livingPlayers.length === 0;
+
+    const candidates = isAllDead ? deadPlayers : livingPlayers;
+    let minDistance = Infinity;
+
+    // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
+    candidates.forEach(p => {
+        const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
+        if (dist < minDistance) {
+            minDistance = dist;
+            targetPlayer = p;
+        }
+    });
+
+    // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
+    if (!targetPlayer) return;
+
+    // --- AJOUT : SUPPRESSION SI TROP LOIN (400 pixels à vol d'oiseau) ---
+    const diffX = monster.x - targetPlayer.XY;
+    const diffY = monster.y - targetPlayer.Yx;
+    const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
+
+    if (distanceVolOiseau > 400) {
+        delete monsters[monster.id]; // Supprime le monstre de la liste
+        return; // Arrête l'exécution pour ce monstre
+    }
+    // ------------------------------------------------------------------
+
+    // Coordonnées de la cible (XY et Yx)
+    const chaX = targetPlayer.XY + 25;
+    const chaY = targetPlayer.Yx + 25;
+
+    const distanceDetection = Infinity;
+    const joueurnear = minDistance <= distanceDetection;
+     
     if (monster.class === 'Gobelin') {
-        
-        // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
-        const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
-        const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
-
-        let targetPlayer = null;
-        let isAllDead = livingPlayers.length === 0;
-
-        const candidates = isAllDead ? deadPlayers : livingPlayers;
-        let minDistance = Infinity;
-
-        // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
-        candidates.forEach(p => {
-            const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
-            if (dist < minDistance) {
-                minDistance = dist;
-                targetPlayer = p;
-            }
-        });
-
-        // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
-        if (!targetPlayer) return;
-
-        // Coordonnées de la cible (XY et Yx)
-        const chaX = targetPlayer.XY + 25;
-        const chaY = targetPlayer.Yx + 25;
-
-        const distanceDetection = Infinity;
-        const joueurnear = minDistance <= distanceDetection;
-
         // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
         if (isAllDead) {
             // FUITE des joueurs morts
