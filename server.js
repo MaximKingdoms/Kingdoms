@@ -360,13 +360,19 @@ function resetMiniteurInactivite(socket) {
 
     // On lance un nouveau compte à rebours de 1 minute (60000 ms)
     const timeout = setTimeout(() => {
-   for (const idMonstre in monsters) {
+  for (const idMonstre in monsters) {
         // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
         if (monsters[idMonstre].playerbound === socket.id) {
             delete monsters[idMonstre]; // Supprime le monstre de l'objet global
         }
-    }
-      console.log(`Expulsion de ${socket.id} pour inactivité.`);
+    }     sauvegarderJoueur(players[socket.id]);
+        clearTimeout(joueursInactifs.get(socket.id));
+        joueursInactifs.delete(socket.id);
+    
+    if (players[socket.id]) {
+      delete players[socket.id];
+      socket.broadcast.emit('disconnectPlayer', socket.id);
+       console.log(`Expulsion de ${socket.id} pour inactivité.`);
         socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
         socket.disconnect(true); // Déconnexion forcée
     }, 60000);
