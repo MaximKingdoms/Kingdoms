@@ -376,6 +376,7 @@ function resetMiniteurInactivite(socket) {
        console.log(`Expulsion de ${socket.id} pour inactivité.`);
         socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
         socket.disconnect(true); // Déconnexion forcée
+    }
     }, 60000);
 
     // On sauvegarde la référence du minuteur
