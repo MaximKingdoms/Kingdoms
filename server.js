@@ -179,33 +179,6 @@ const pool = mysql.createPool({
 // Le stockage en RAM
 const joueursEnLigne = {}; 
 const players = {};
-io.on('connection', (socket) => {
-  console.log('Un utilisateur tente de se connecter :', socket.id);
-
-  // 1. Initialisation du joueur
-  socket.on('playerfound', (data) => {
-    console.log(`Joueur connecté : ${data.nomjoueur}`);
-
-    players[socket.id] = {
-      id: data.id,
-      Nomhero: data.nomjoueur,
-      XY: data.mapxxx,      
-      Yx: data.mapyyy,      
-      Currenthp: data.actualhp,       
-      Class: data.actualclass,      
-      Strength: data.sonstr 
-    };
-
-    // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
-    io.emit('newPlayer', players[socket.id]);
-    
-    const listeJoueurs = Object.values(players);
-    console.log("Liste des joueurs envoyée :", listeJoueurs);
-    
-    // Envoyer la liste uniquement au joueur qui la demande
-//socket.emit('currentPlayers', listeJoueurs); 
-  });
-
   // 3. Gestion des dégâts / coups reçus
   socket.on('hitfromplayer', (hitdata) => {
     Object.values(players).forEach(player => {
@@ -296,6 +269,41 @@ socket.on('missile', (data) => {
 });
 
   // 4. Écouter les mouvements du joueur en temps réel
+  
+
+// 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
+
+
+});
+const joueursInactifs = new Map(); // Stocke le minuteur de chaque joueur
+
+io.on('connection', (socket) => {
+  console.log('Un utilisateur tente de se connecter :', socket.id);
+
+  // 1. Initialisation du joueur
+  socket.on('playerfound', (data) => {
+    console.log(`Joueur connecté : ${data.nomjoueur}`);
+
+    players[socket.id] = {
+      id: data.id,
+      Nomhero: data.nomjoueur,
+      XY: data.mapxxx,      
+      Yx: data.mapyyy,      
+      Currenthp: data.actualhp,       
+      Class: data.actualclass,      
+      Strength: data.sonstr 
+    };
+
+    // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
+    io.emit('newPlayer', players[socket.id]);
+    
+    const listeJoueurs = Object.values(players);
+    console.log("Liste des joueurs envoyée :", listeJoueurs);
+    
+    // 1. Initialiser le minuteur dès la connexion
+    resetMiniteurInactivite(socket);
+
+    // 2. Écouter l'événement de mouvement envoyé par le client
 socket.on('playerMoved2', (donneesPosition) => {
     if (players[socket.id]) {
             console.log("Nouvelle position = " + donneesPosition.pixelX);
@@ -306,17 +314,20 @@ socket.on('playerMoved2', (donneesPosition) => {
 //     players[socket.id].caseY = donneesPosition.caseY;
 
       // Diffuse la nouvelle position aux autres joueurs
+        resetMiniteurInactivite(socket);
     }
   });
-  
-
-// 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
-
+        // Le joueur a bougé, on remet le compteur à zéro
+        
+        // Logique de déplacement ici (ex: mettre à jour les coordonnées x, y)
+    });
 
   // 5. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
     console.log('Joueur déconnecté :', socket.id);
      sauvegarderJoueur(players[socket.id]);
+        clearTimeout(joueursInactifs.get(socket.id));
+        joueursInactifs.delete(socket.id);
     
     if (players[socket.id]) {
       delete players[socket.id];
@@ -324,7 +335,25 @@ socket.on('playerMoved2', (donneesPosition) => {
       socket.disconnect(true);
     }
   });
+    // Nettoyer si le joueur quitte de lui-même
 });
+
+function resetMiniteurInactivite(socket) {
+    // Si un minuteur existait déjà pour ce joueur, on l'annule
+    if (joueursInactifs.has(socket.id)) {
+        clearTimeout(joueursInactifs.get(socket.id));
+    }
+
+    // On lance un nouveau compte à rebours de 1 minute (60000 ms)
+    const timeout = setTimeout(() => {
+        console.log(`Expulsion de ${socket.id} pour inactivité.`);
+        socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
+        socket.disconnect(true); // Déconnexion forcée
+    }, 60000);
+
+    // On sauvegarde la référence du minuteur
+    joueursInactifs.set(socket.id, timeout);
+}
 
 // 1. NOUVELLE FONCTION : Émet toutes les positions du jeu d'un coup
 function emitGlobalPositions() {
@@ -357,6 +386,7 @@ function emitGlobalPositions() {
       power: missile.power
     }))
   });
+        
      listeMissiles.forEach((missile) => {
 
 if (Date.now() - missile.createdAt > 5000) { 
