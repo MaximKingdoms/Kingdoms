@@ -149,7 +149,8 @@ const listeMonstres = [];
         x: posX,
         y: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
-        class: data.monsterclass
+        class: data.monsterclass,
+        playerbound: data.playername
     };
 
       // Diffuse la nouvelle position aux autres joueurs
@@ -346,7 +347,9 @@ function resetMiniteurInactivite(socket) {
 
     // On lance un nouveau compte à rebours de 1 minute (60000 ms)
     const timeout = setTimeout(() => {
-        console.log(`Expulsion de ${socket.id} pour inactivité.`);
+monsters = monsters.filter(monstre => monstre.playername !== socket.id);
+   
+      console.log(`Expulsion de ${socket.id} pour inactivité.`);
         socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
         socket.disconnect(true); // Déconnexion forcée
     }, 60000);
