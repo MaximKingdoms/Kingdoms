@@ -285,7 +285,7 @@ Object.values(monsters).forEach(monster => {
     const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
 
     if (distanceVolOiseau > 400) {
-        io.emit('monsterRemoved', { id: monsters[monster.id].id });
+        io.emit('monsterRemoved', { id: monsters[monster.id] });
         delete monsters[monster.id]; // Supprime le monstre de la liste
         return; // Arrête l'exécution pour ce monstre
     }
