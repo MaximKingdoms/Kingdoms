@@ -274,7 +274,6 @@ socket.on('missile', (data) => {
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
 
-});
 const joueursInactifs = new Map(); // Stocke le minuteur de chaque joueur
 
 io.on('connection', (socket) => {
