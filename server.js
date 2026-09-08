@@ -347,7 +347,7 @@ function resetMiniteurInactivite(socket) {
 
     // On lance un nouveau compte à rebours de 1 minute (60000 ms)
     const timeout = setTimeout(() => {
-monsters = monsters.filter(monstre => monstre.playername !== socket.id);
+monsters = monsters.filter(monstre => monstre.playerbound !== socket.id);
    
       console.log(`Expulsion de ${socket.id} pour inactivité.`);
         socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
