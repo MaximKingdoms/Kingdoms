@@ -237,9 +237,7 @@ socket.on('playerMoved2', (donneesPosition) => {
       socket.disconnect(true);
     }
   });
-    // Nettoyer si le joueur quitte de lui-même
-});
-// Le stockage en RAM
+        // Le stockage en RAM
 const joueursEnLigne = {}; 
 const players = {};
   // 3. Gestion des dégâts / coups reçus
@@ -329,6 +327,9 @@ socket.on('missile', (data) => {
     listeMissiles.push(nouveauMissile);
 
     console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+});
+
+    // Nettoyer si le joueur quitte de lui-même
 });
 
   // 4. Écouter les mouvements du joueur en temps réel
