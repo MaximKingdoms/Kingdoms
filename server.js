@@ -86,6 +86,7 @@ socket.on('playerMoved2', (donneesPosition) => {
   // 5. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
     console.log('Joueur déconnecté :', socket.id);
+monsters = monsters.filter(monstre => monstre.playerbound !== socket.id);
      sauvegarderJoueur(players[socket.id]);
         clearTimeout(joueursInactifs.get(socket.id));
         joueursInactifs.delete(socket.id);
