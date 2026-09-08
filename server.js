@@ -35,6 +35,8 @@ const pool = mysql.createPool({
 
 
 const joueursInactifs = new Map(); // Stocke le minuteur de chaque joueur
+const joueursEnLigne = {}; 
+const players = {};
 
 io.on('connection', (socket) => {
   console.log('Un utilisateur tente de se connecter :', socket.id);
@@ -95,8 +97,6 @@ socket.on('playerMoved2', (donneesPosition) => {
     }
   });
         // Le stockage en RAM
-const joueursEnLigne = {}; 
-const players = {};
   // 3. Gestion des dégâts / coups reçus
   socket.on('hitfromplayer', (hitdata) => {
     Object.values(players).forEach(player => {
