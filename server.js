@@ -9,149 +9,6 @@ const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
 let listeMissiles = [];
 const monsters = {};
 
-function moveMonstersServer() {
-const survivantsMissiles = [];
-        
-// --- SUR LE SERVEUR (Dans moveMonstersServer) ---
-
-listeMissiles.forEach((missile) => {
-    const targetx = Number(missile.targetx);
-    const targety = Number(missile.targety);
-
-    // 1. INITIALISATION DE LA DIAGONALE (Au premier tick du missile)
-    if (!missile.dirX && !missile.dirY) {
-        const diffX = targetx - missile.x;
-        const diffY = targety - missile.y;
-        
-        // Calcul de la distance initiale que le missile DOIT faire
-        const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
-
-        // Vecteur de direction (ligne droite pure)
-        missile.dirX = diffX / distanceOrigine;
-        missile.dirY = diffY / distanceOrigine;
-
-        // 🌟 LA RECHARGE MAGIQUE : On lui donne l'autorisation de voyager 25px de plus
-        missile.distanceMaximale = distanceOrigine + 25;
-        missile.distanceParcourue = 0;
-    }
-
-    // Vitesse fixe par tick (ajustée pour tes 50ms)
-    const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
-
-    // Calcul du pas à faire (on ne doit pas dépasser la distance max)
-    let pasCeTick = stepSpeed;
-    if (missile.distanceParcourue + stepSpeed >= missile.distanceMaximale) {
-        pasCeTick = missile.distanceMaximale - missile.distanceParcourue;
-    }
-
-    // 2. LOGIQUE DE MOUVEMENT (Avancement le long de ta ligne droite parfaite)
-    missile.x += missile.dirX * pasCeTick;
-    missile.y += missile.dirY * pasCeTick;
-    missile.distanceParcourue += pasCeTick;
-
-    // 3. EXTINCTION LOGIQUE (Uniquement quand il a fini ses +25px bonus)
-    if (missile.distanceParcourue >= missile.distanceMaximale) {
-        console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
-        // Il meurt ici (non ajouté aux survivants)
-    } else {
-        // Le missile est toujours en transit, il survit pour le prochain tick
-        survivantsMissiles.push(missile);
-    }
-});
-
-// On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
-listeMissiles = survivantsMissiles;
-
-        const playersArray = Object.values(players);
-
-const step = 2.4;
-        
-Object.values(monsters).forEach(monster => {
-    // Sécurité au cas où l'objet serait mal défini
-    if (!monster) return;
-
-    // Vérification de la classe du monstre
-    if (monster.class === 'Gobelin') {
-        
-        // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
-        const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
-        const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
-
-        let targetPlayer = null;
-        let isAllDead = livingPlayers.length === 0;
-
-        const candidates = isAllDead ? deadPlayers : livingPlayers;
-        let minDistance = Infinity;
-
-        // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
-        candidates.forEach(p => {
-            const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
-            if (dist < minDistance) {
-                minDistance = dist;
-                targetPlayer = p;
-            }
-        });
-
-        // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
-        if (!targetPlayer) return;
-
-        // Coordonnées de la cible (XY et Yx)
-        const chaX = targetPlayer.XY + 25;
-        const chaY = targetPlayer.Yx + 25;
-
-        const distanceDetection = Infinity;
-        const joueurnear = minDistance <= distanceDetection;
-
-        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
-        if (isAllDead) {
-            // FUITE des joueurs morts
-            if (joueurnear) {
-                if (monster.x < chaX) {
-                    monsters[monster.id].x -= step;
-                } else if (monster.x > chaX) {
-                    monsters[monster.id].x += step;
-                } else {
-                    monsters[monster.id].x -= step;
-                }
-                
-                if (monster.y < chaY) {
-                    monsters[monster.id].y -= step;
-                } else if (monster.y > chaY) {
-                    monsters[monster.id].y += step;
-                } else {
-                    monsters[monster.id].y -= step;
-                }
-            }
-        } else {
-            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
-            // Axe X
-            if (Math.abs(monster.x - chaX) <= step) {
-                monsters[monster.id].x = chaX;
-            } else {
-                monsters[monster.id].x += (monster.x < chaX) ? step : -step;
-            }
-            
-            // Axe Y
-            if (Math.abs(monster.y - chaY) <= step) {
-                monsters[monster.id].y = chaY;
-            } else {
-                monsters[monster.id].y += (monster.y < chaY) ? step : -step;
-            }
-        }
-    }
-});
-// CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
-    lastUpdateTime = Date.now();
- emitGlobalPositions();
-}
-
-  let gameInterval = null; // Variable globale pour stocker l'intervalle
-
-// Dans votre fonction de configuration/connexion :
-if (!gameInterval) { 
-    // On ne lance l'intervalle que s'il n'existe pas déjà
-    gameInterval = setInterval(moveMonstersServer, 50);
-}
 const { Server } = require('socket.io');
 
 const app = express();
@@ -334,6 +191,149 @@ socket.on('missile', (data) => {
 
   // 4. Écouter les mouvements du joueur en temps réel
   
+function moveMonstersServer() {
+const survivantsMissiles = [];
+        
+// --- SUR LE SERVEUR (Dans moveMonstersServer) ---
+
+listeMissiles.forEach((missile) => {
+    const targetx = Number(missile.targetx);
+    const targety = Number(missile.targety);
+
+    // 1. INITIALISATION DE LA DIAGONALE (Au premier tick du missile)
+    if (!missile.dirX && !missile.dirY) {
+        const diffX = targetx - missile.x;
+        const diffY = targety - missile.y;
+        
+        // Calcul de la distance initiale que le missile DOIT faire
+        const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
+
+        // Vecteur de direction (ligne droite pure)
+        missile.dirX = diffX / distanceOrigine;
+        missile.dirY = diffY / distanceOrigine;
+
+        // 🌟 LA RECHARGE MAGIQUE : On lui donne l'autorisation de voyager 25px de plus
+        missile.distanceMaximale = distanceOrigine + 25;
+        missile.distanceParcourue = 0;
+    }
+
+    // Vitesse fixe par tick (ajustée pour tes 50ms)
+    const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
+
+    // Calcul du pas à faire (on ne doit pas dépasser la distance max)
+    let pasCeTick = stepSpeed;
+    if (missile.distanceParcourue + stepSpeed >= missile.distanceMaximale) {
+        pasCeTick = missile.distanceMaximale - missile.distanceParcourue;
+    }
+
+    // 2. LOGIQUE DE MOUVEMENT (Avancement le long de ta ligne droite parfaite)
+    missile.x += missile.dirX * pasCeTick;
+    missile.y += missile.dirY * pasCeTick;
+    missile.distanceParcourue += pasCeTick;
+
+    // 3. EXTINCTION LOGIQUE (Uniquement quand il a fini ses +25px bonus)
+    if (missile.distanceParcourue >= missile.distanceMaximale) {
+        console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
+        // Il meurt ici (non ajouté aux survivants)
+    } else {
+        // Le missile est toujours en transit, il survit pour le prochain tick
+        survivantsMissiles.push(missile);
+    }
+});
+
+// On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
+listeMissiles = survivantsMissiles;
+
+        const playersArray = Object.values(players);
+
+const step = 2.4;
+        
+Object.values(monsters).forEach(monster => {
+    // Sécurité au cas où l'objet serait mal défini
+    if (!monster) return;
+
+    // Vérification de la classe du monstre
+    if (monster.class === 'Gobelin') {
+        
+        // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
+        const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
+        const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
+
+        let targetPlayer = null;
+        let isAllDead = livingPlayers.length === 0;
+
+        const candidates = isAllDead ? deadPlayers : livingPlayers;
+        let minDistance = Infinity;
+
+        // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
+        candidates.forEach(p => {
+            const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
+            if (dist < minDistance) {
+                minDistance = dist;
+                targetPlayer = p;
+            }
+        });
+
+        // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
+        if (!targetPlayer) return;
+
+        // Coordonnées de la cible (XY et Yx)
+        const chaX = targetPlayer.XY + 25;
+        const chaY = targetPlayer.Yx + 25;
+
+        const distanceDetection = Infinity;
+        const joueurnear = minDistance <= distanceDetection;
+
+        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
+        if (isAllDead) {
+            // FUITE des joueurs morts
+            if (joueurnear) {
+                if (monster.x < chaX) {
+                    monsters[monster.id].x -= step;
+                } else if (monster.x > chaX) {
+                    monsters[monster.id].x += step;
+                } else {
+                    monsters[monster.id].x -= step;
+                }
+                
+                if (monster.y < chaY) {
+                    monsters[monster.id].y -= step;
+                } else if (monster.y > chaY) {
+                    monsters[monster.id].y += step;
+                } else {
+                    monsters[monster.id].y -= step;
+                }
+            }
+        } else {
+            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
+            // Axe X
+            if (Math.abs(monster.x - chaX) <= step) {
+                monsters[monster.id].x = chaX;
+            } else {
+                monsters[monster.id].x += (monster.x < chaX) ? step : -step;
+            }
+            
+            // Axe Y
+            if (Math.abs(monster.y - chaY) <= step) {
+                monsters[monster.id].y = chaY;
+            } else {
+                monsters[monster.id].y += (monster.y < chaY) ? step : -step;
+            }
+        }
+    }
+});
+// CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
+    lastUpdateTime = Date.now();
+ emitGlobalPositions();
+}
+
+  let gameInterval = null; // Variable globale pour stocker l'intervalle
+
+// Dans votre fonction de configuration/connexion :
+if (!gameInterval) { 
+    // On ne lance l'intervalle que s'il n'existe pas déjà
+    gameInterval = setInterval(moveMonstersServer, 50);
+}
 
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
