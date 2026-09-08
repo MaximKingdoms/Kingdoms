@@ -86,8 +86,12 @@ socket.on('playerMoved2', (donneesPosition) => {
   // 5. Gérer la déconnexion d'un joueur
   socket.on('disconnect', () => {
     console.log('Joueur déconnecté :', socket.id);
-monsters = monsters.filter(monstre => monstre.playerbound !== socket.id);
-     sauvegarderJoueur(players[socket.id]);
+   for (const idMonstre in monsters) {
+        // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
+        if (monsters[idMonstre].playerbound === socket.id) {
+            delete monsters[idMonstre]; // Supprime le monstre de l'objet global
+        }
+    }     sauvegarderJoueur(players[socket.id]);
         clearTimeout(joueursInactifs.get(socket.id));
         joueursInactifs.delete(socket.id);
     
@@ -348,8 +352,12 @@ function resetMiniteurInactivite(socket) {
 
     // On lance un nouveau compte à rebours de 1 minute (60000 ms)
     const timeout = setTimeout(() => {
-monsters = monsters.filter(monstre => monstre.playerbound !== socket.id);
-   
+   for (const idMonstre in monsters) {
+        // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
+        if (monsters[idMonstre].playerbound === socket.id) {
+            delete monsters[idMonstre]; // Supprime le monstre de l'objet global
+        }
+    }
       console.log(`Expulsion de ${socket.id} pour inactivité.`);
         socket.emit('afk_kick', 'Vous avez été déconnecté pour inactivité.');
         socket.disconnect(true); // Déconnexion forcée
