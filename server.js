@@ -176,6 +176,69 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+
+const joueursInactifs = new Map(); // Stocke le minuteur de chaque joueur
+
+io.on('connection', (socket) => {
+  console.log('Un utilisateur tente de se connecter :', socket.id);
+
+  // 1. Initialisation du joueur
+  socket.on('playerfound', (data) => {
+    console.log(`Joueur connecté : ${data.nomjoueur}`);
+
+    players[socket.id] = {
+      id: data.id,
+      Nomhero: data.nomjoueur,
+      XY: data.mapxxx,      
+      Yx: data.mapyyy,      
+      Currenthp: data.actualhp,       
+      Class: data.actualclass,      
+      Strength: data.sonstr 
+    };
+
+    // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
+    io.emit('newPlayer', players[socket.id]);
+    
+    const listeJoueurs = Object.values(players);
+    console.log("Liste des joueurs envoyée :", listeJoueurs);
+    
+    // 1. Initialiser le minuteur dès la connexion
+    resetMiniteurInactivite(socket);
+
+    // 2. Écouter l'événement de mouvement envoyé par le client
+socket.on('playerMoved2', (donneesPosition) => {
+    if (players[socket.id]) {
+            console.log("Nouvelle position = " + donneesPosition.pixelX);
+        // On stocke les coordonnées en pixels reçues du client
+        players[socket.id].XY = donneesPosition.pixelX;
+        players[socket.id].Yx = donneesPosition.pixelY;
+//        players[socket.id].caseX = donneesPosition.caseX;
+//     players[socket.id].caseY = donneesPosition.caseY;
+
+      // Diffuse la nouvelle position aux autres joueurs
+        resetMiniteurInactivite(socket);
+    }
+  });
+        // Le joueur a bougé, on remet le compteur à zéro
+        
+        // Logique de déplacement ici (ex: mettre à jour les coordonnées x, y)
+    });
+
+  // 5. Gérer la déconnexion d'un joueur
+  socket.on('disconnect', () => {
+    console.log('Joueur déconnecté :', socket.id);
+     sauvegarderJoueur(players[socket.id]);
+        clearTimeout(joueursInactifs.get(socket.id));
+        joueursInactifs.delete(socket.id);
+    
+    if (players[socket.id]) {
+      delete players[socket.id];
+      socket.broadcast.emit('disconnectPlayer', socket.id);
+      socket.disconnect(true);
+    }
+  });
+    // Nettoyer si le joueur quitte de lui-même
+});
 // Le stockage en RAM
 const joueursEnLigne = {}; 
 const players = {};
@@ -273,69 +336,6 @@ socket.on('missile', (data) => {
 
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
-
-const joueursInactifs = new Map(); // Stocke le minuteur de chaque joueur
-
-io.on('connection', (socket) => {
-  console.log('Un utilisateur tente de se connecter :', socket.id);
-
-  // 1. Initialisation du joueur
-  socket.on('playerfound', (data) => {
-    console.log(`Joueur connecté : ${data.nomjoueur}`);
-
-    players[socket.id] = {
-      id: data.id,
-      Nomhero: data.nomjoueur,
-      XY: data.mapxxx,      
-      Yx: data.mapyyy,      
-      Currenthp: data.actualhp,       
-      Class: data.actualclass,      
-      Strength: data.sonstr 
-    };
-
-    // Diffuser les infos de ce NOUVEAU joueur à tous les autres déjà connectés
-    io.emit('newPlayer', players[socket.id]);
-    
-    const listeJoueurs = Object.values(players);
-    console.log("Liste des joueurs envoyée :", listeJoueurs);
-    
-    // 1. Initialiser le minuteur dès la connexion
-    resetMiniteurInactivite(socket);
-
-    // 2. Écouter l'événement de mouvement envoyé par le client
-socket.on('playerMoved2', (donneesPosition) => {
-    if (players[socket.id]) {
-            console.log("Nouvelle position = " + donneesPosition.pixelX);
-        // On stocke les coordonnées en pixels reçues du client
-        players[socket.id].XY = donneesPosition.pixelX;
-        players[socket.id].Yx = donneesPosition.pixelY;
-//        players[socket.id].caseX = donneesPosition.caseX;
-//     players[socket.id].caseY = donneesPosition.caseY;
-
-      // Diffuse la nouvelle position aux autres joueurs
-        resetMiniteurInactivite(socket);
-    }
-  });
-        // Le joueur a bougé, on remet le compteur à zéro
-        
-        // Logique de déplacement ici (ex: mettre à jour les coordonnées x, y)
-    });
-
-  // 5. Gérer la déconnexion d'un joueur
-  socket.on('disconnect', () => {
-    console.log('Joueur déconnecté :', socket.id);
-     sauvegarderJoueur(players[socket.id]);
-        clearTimeout(joueursInactifs.get(socket.id));
-        joueursInactifs.delete(socket.id);
-    
-    if (players[socket.id]) {
-      delete players[socket.id];
-      socket.broadcast.emit('disconnectPlayer', socket.id);
-      socket.disconnect(true);
-    }
-  });
-    // Nettoyer si le joueur quitte de lui-même
-});
 
 function resetMiniteurInactivite(socket) {
     // Si un minuteur existait déjà pour ce joueur, on l'annule
