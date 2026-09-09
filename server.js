@@ -128,13 +128,7 @@ socket.on('hitmonster', (hitdata) => {
       if (monsters[hitdata.monstername]) {
         monsters[hitdata.monstername].power = hitdata.monsterhp;
       }
-          if (hitdata.monsterhp <= 0) {
-            delete monsters[hitdata.monstername];
-            
-            // On informe les clients de le supprimer graphiquement
-            io.emit('monsterRemoved', { id: hitdata.monstername });
         
-      }
 
   });
 
