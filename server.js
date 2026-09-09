@@ -134,7 +134,7 @@ socket.on('hitmonster', (hitdata) => {
             // On informe les clients de le supprimer graphiquement
             io.emit('monsterRemoved', { id: hitdata.monstername });
         
-      }}
+      }
 
   });
 
