@@ -383,45 +383,109 @@ function resetMiniteurInactivite(socket) {
     joueursInactifs.set(socket.id, timeout);
 }
 
-// 1. NOUVELLE FONCTION : Émet toutes les positions du jeu d'un coup
-function emitGlobalPositions() {
-   
-        io.emit('globalPositions', {
-    players: Object.keys(players).map(id => ({
-      id: id,
-      Nomhero: players[id].Nomhero,
-      XY: players[id].XY,
-      Yx: players[id].Yx,
-      Currenthp: players[id].Currenthp,
-      Class: players[id].Class,
-      Strength: players[id].Strength
-    })),
-    monsters: Object.keys(monsters).map(id => ({
-      id: id,
-      x: monsters[id].x,
-      y: monsters[id].y,
-      hp: monsters[id].power,
-      class: monsters[id].class
-    })),
-    missiles: listeMissiles.map(missile => ({
-      id: missile.id,
-      x: missile.x,
-      y: missile.y,
-      targetx: missile.targetx,
-      targety: missile.targety,
-      playerclass: missile.playerclass,
-      playershot: missile.playershot,
-      power: missile.power
-    }))
-  });
-        
-     listeMissiles.forEach((missile) => {
+// 1. DÉFINITION DE LA GRILLE (À placer en haut de votre fichier)
+const ZONE_SIZE = 350; // Ajustez cette valeur (ex: la taille moyenne d'un écran de jeu en pixels)
 
-if (Date.now() - missile.createdAt > 5000) { 
- missile.remove();
+function getZoneKey(x, y) {
+    const zoneX = Math.floor(x / ZONE_SIZE);
+    const zoneY = Math.floor(y / ZONE_SIZE);
+    return `${zoneX},${zoneY}`;
 }
-});
+
+// 2. VOTRE FONCTION OPTIMISÉE
+function emitGlobalPositions() {
+    
+    // Nettoyage des missiles expirés
+    const now = Date.now();
+    listeMissiles = listeMissiles.filter(missile => {
+        if (now - missile.createdAt > 5000) { 
+            // Si votre objet missile a une méthode de nettoyage (ex: retirer de la physique)
+            if (typeof missile.remove === 'function') missile.remove();
+            return false;
+        }
+        return true;
+    });
+
+    // Initialiser la grille vide pour ce tick
+    const grid = {};
+    function ensureZone(key) {
+        if (!grid[key]) {
+            grid[key] = { players: [], monsters: [], missiles: [] };
+        }
+    }
+
+    // Répartir les JOUEURS dans la grille
+    Object.keys(players).forEach(player => {
+        const p = players[player.id];
+        const key = getZoneKey(p.XY, p.Yx); // XY = x, Yx = y
+        ensureZone(key);
+        grid[key].players.push({
+            id: id,
+            Nomhero: p.Nomhero,
+            XY: p.XY,
+            Yx: p.Yx,
+            Currenthp: p.Currenthp,
+            Class: p.Class,
+            Strength: p.Strength
+        });
+    });
+
+    // Répartir les MONSTRES dans la grille
+    Object.keys(monsters).forEach(monster => {
+        const m = monsters[monster.id];
+        const key = getZoneKey(m.x, m.y);
+        ensureZone(key);
+        grid[key].monsters.push({
+            id: id,
+            x: m.x,
+            y: m.y,
+            hp: m.power,
+            class: m.class
+        });
+    });
+
+    // Répartir les MISSILES dans la grille
+    listeMissiles.forEach(missile => {
+        const key = getZoneKey(missile.x, missile.y);
+        ensureZone(key);
+        grid[key].missiles.push({
+            id: missile.id,
+            x: missile.x,
+            y: missile.y,
+            targetx: missile.targetx,
+            targety: missile.targety,
+            playerclass: missile.playerclass,
+            playershot: missile.playershot,
+            power: missile.power
+        });
+    });
+
+    // ENVOYER les données ciblées à CHAQUE joueur individuellement
+    Object.keys(players).forEach(socketId => {
+        const p = players[socketId];
+        const playerZoneX = Math.floor(p.XY / ZONE_SIZE);
+        const playerZoneY = Math.floor(p.Yx / ZONE_SIZE);
+
+        const localData = { players: [], monsters: [], missiles: [] };
+
+        // Récupérer les données de la zone du joueur + les 8 zones adjacentes (Grille 3x3)
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const targetKey = `${playerZoneX + dx},${playerZoneY + dy}`;
+                
+                if (grid[targetKey]) {
+                    localData.players.push(...grid[targetKey].players);
+                    localData.monsters.push(...grid[targetKey].monsters);
+                    localData.missiles.push(...grid[targetKey].missiles);
+                }
+            }
+        }
+
+        // Envoi exclusif au socket du joueur concerné
+        io.to(socketId).emit('globalPositions', localData);
+    });
 }
+
                            
 // Sauvegarde automatique toutes les minutes
 setInterval(() => {
