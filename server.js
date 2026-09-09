@@ -69,8 +69,8 @@ socket.on('playerMoved2', (donneesPosition) => {
     if (players[socket.id]) {
             console.log("Nouvelle position = " + donneesPosition.pixelX);
         // On stocke les coordonnées en pixels reçues du client
-        players[socket.id].XY = donneesPosition.pixelX -25;
-        players[socket.id].Yx = donneesPosition.pixelY -25;
+        players[socket.id].XY = donneesPosition.pixelX;
+        players[socket.id].Yx = donneesPosition.pixelY;
 //        players[socket.id].caseX = donneesPosition.caseX;
 //     players[socket.id].caseY = donneesPosition.caseY;
 
