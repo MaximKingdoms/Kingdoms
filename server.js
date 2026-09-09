@@ -256,7 +256,7 @@ const step = 2.4;
 Object.values(monsters).forEach(monster => {
     // Sécurité au cas où l'objet serait mal défini
     if (!monster) return;
-    if (monster.dataset.hp <= 0) return;
+    if (monster.power <= 0) return;
 
     // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
     const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
