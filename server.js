@@ -415,8 +415,8 @@ function emitGlobalPositions() {
     }
 
     // Répartir les JOUEURS dans la grille
-    Object.keys(players).forEach(player => {
-        const p = players[player.id];
+    Object.keys(players).forEach(id => {
+        const p = players[id];
         const key = getZoneKey(p.XY, p.Yx); // XY = x, Yx = y
         ensureZone(key);
         grid[key].players.push({
@@ -431,8 +431,8 @@ function emitGlobalPositions() {
     });
 
     // Répartir les MONSTRES dans la grille
-    Object.keys(monsters).forEach(monster => {
-        const m = monsters[monster.id];
+    Object.keys(monsters).forEach(id => {
+        const m = monsters[id];
         const key = getZoneKey(m.x, m.y);
         ensureZone(key);
         grid[key].monsters.push({
