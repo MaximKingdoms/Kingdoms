@@ -48,8 +48,8 @@ io.on('connection', (socket) => {
     players[socket.id] = {
       id: data.id,
       Nomhero: data.nomjoueur,
-      XY: data.mapxxx -25,      
-      Yx: data.mapyyy -25,      
+      XY: data.mapxxx,      
+      Yx: data.mapyyy,      
       Currenthp: data.actualhp,       
       Class: data.actualclass,      
       Strength: data.sonstr 
@@ -166,8 +166,8 @@ socket.on('missile', (data) => {
     const nouveauMissile = {
             
         id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
-        x: players[data.id].XY +25,
-        y: players[data.id].Yx +25,
+        x: players[data.id].XY,
+        y: players[data.id].Yx,
         targetx: posX,
         targety: posY,
         power: data.hp, // Optionnel : vitesse de déplacement
