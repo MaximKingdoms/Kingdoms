@@ -422,6 +422,7 @@ function emitGlobalPositions() {
             Class: p.Class,
             Strength: p.Strength
         });
+      console.log(p.XY);
     });
 
     // Répartir les MONSTRES dans la grille
