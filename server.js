@@ -48,8 +48,8 @@ io.on('connection', (socket) => {
     players[socket.id] = {
       id: data.id,
       Nomhero: data.nomjoueur,
-      XY: data.mapxxx,      
-      Yx: data.mapyyy,      
+      XY: data.mapxxx -25,      
+      Yx: data.mapyyy -25,      
       Currenthp: data.actualhp,       
       Class: data.actualclass,      
       Strength: data.sonstr 
