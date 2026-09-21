@@ -67,10 +67,10 @@ io.on('connection', (socket) => {
     // 2. Écouter l'événement de mouvement envoyé par le client
 socket.on('playerMoved2', (donneesPosition) => {
     if (players[socket.id]) {
-            console.log("Nouvelle position = " + donneesPosition.caseX);
+            console.log("Nouvelle position = " + donneesPosition.pixelX);
         // On stocke les coordonnées en pixels reçues du client
-        players[socket.id].XY = donneesPosition.caseX;
-        players[socket.id].Yx = donneesPosition.caseY;
+        players[socket.id].XY = donneesPosition.pixelX;
+        players[socket.id].Yx = donneesPosition.pixelY;
 //        players[socket.id].caseX = donneesPosition.caseX;
 //     players[socket.id].caseY = donneesPosition.caseY;
 
@@ -137,8 +137,8 @@ socket.on('hitmonster', (hitdata) => {
 const listeMonstres = [];
   socket.on('monstre', (data) => {
     // Valider ou assigner des valeurs par défaut
-    const posX = data.XY * 50 ?? 0;
-    const posY = data.Yx * 50 ?? 0;
+    const posX = data.XY ?? 0;
+    const posY = data.Yx ?? 0;
 
     // 3. Création du nouvel objet missile
     let monsterid = Math.random().toString(36).substring(2, 9);
