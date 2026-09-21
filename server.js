@@ -137,8 +137,8 @@ socket.on('hitmonster', (hitdata) => {
 const listeMonstres = [];
   socket.on('monstre', (data) => {
     // Valider ou assigner des valeurs par défaut
-    const posX = data.XY ?? 0;
-    const posY = data.Yx ?? 0;
+    const posX = data.XY * 50 ?? 0;
+    const posY = data.Yx * 50 ?? 0;
 
     // 3. Création du nouvel objet missile
     let monsterid = Math.random().toString(36).substring(2, 9);
