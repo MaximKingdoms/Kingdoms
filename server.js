@@ -288,6 +288,7 @@ Object.values(monsters).forEach(monster => {
     // Coordonnées de la cible (XY et Yx)
     const chaX = (targetPlayer.XY * 50) + 25;
     const chaY = (targetPlayer.Yx * 50) + 25;
+  console.log("chaX" + chaX);
 
     const distanceDetection = Infinity;
     const joueurnear = minDistance <= distanceDetection;
@@ -422,7 +423,7 @@ function emitGlobalPositions() {
             Class: p.Class,
             Strength: p.Strength
         });
-      console.log(p.XY);
+      console.log("players is at "+ p.XY);
     });
 
     // Répartir les MONSTRES dans la grille
@@ -437,7 +438,7 @@ function emitGlobalPositions() {
             hp: m.power,
             class: m.class
         });
-      console.log(m.x);
+      console.log("monsters is at x " + m.x);
     });
 
     // Répartir les MISSILES dans la grille
