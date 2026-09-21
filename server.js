@@ -436,6 +436,7 @@ function emitGlobalPositions() {
             hp: m.power,
             class: m.class
         });
+      console.log(m.x);
     });
 
     // Répartir les MISSILES dans la grille
