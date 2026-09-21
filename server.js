@@ -286,8 +286,8 @@ Object.values(monsters).forEach(monster => {
     // ------------------------------------------------------------------
 
     // Coordonnées de la cible (XY et Yx)
-    const chaX = (targetPlayer.XY * 50) + 25;
-    const chaY = (targetPlayer.Yx * 50) + 25;
+    const chaX = (targetPlayer.XY) + 25;
+    const chaY = (targetPlayer.Yx) + 25;
   console.log("chaX" + chaX);
 
     const distanceDetection = Infinity;
