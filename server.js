@@ -459,7 +459,14 @@ function resetMiniteurInactivite(socket) {
         if (monsters[idMonstre].playerbound === socket.id) {
             delete monsters[idMonstre]; // Supprime le monstre de l'objet global
         }
-    }     sauvegarderJoueur(players[socket.id]);
+    }
+        for (const idSummon in summons) {
+        // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
+        if (summons[idSummon].playerbound === socket.id) {
+            delete summons[idSummon]; // Supprime le monstre de l'objet global
+        }
+    }
+      sauvegarderJoueur(players[socket.id]);
         clearTimeout(joueursInactifs.get(socket.id));
         joueursInactifs.delete(socket.id);
     
@@ -538,6 +545,20 @@ function emitGlobalPositions() {
         });
       console.log("monsters is at x " + m.x);
     });
+    // Répartir les MONSTRES dans la grille
+    Object.keys(summons).forEach(id => {
+        const s = summons[id];
+        const key = getZoneKey(s.x, s.y);
+        ensureZone(key);
+        grid[key].summons.push({
+            id: id,
+            x: s.x,
+            y: s.y,
+            hp: s.power,
+            class: s.class
+        });
+      console.log("summons is at x " + s.x);
+    });
 
     // Répartir les MISSILES dans la grille
     listeMissiles.forEach(missile => {
@@ -561,7 +582,7 @@ function emitGlobalPositions() {
         const playerZoneX = Math.floor(p.XY / ZONE_SIZE);
         const playerZoneY = Math.floor(p.Yx / ZONE_SIZE);
 
-        const localData = { players: [], monsters: [], missiles: [] };
+        const localData = { players: [], monsters: [], missiles: [], summons: [] };
 
         // Récupérer les données de la zone du joueur + les 8 zones adjacentes (Grille 3x3)
         for (let dx = -1; dx <= 1; dx++) {
@@ -572,6 +593,7 @@ function emitGlobalPositions() {
                     localData.players.push(...grid[targetKey].players);
                     localData.monsters.push(...grid[targetKey].monsters);
                     localData.missiles.push(...grid[targetKey].missiles);
+                    localData.summons.push(...grid[targetKey].summons);
                 }
             }
         }
