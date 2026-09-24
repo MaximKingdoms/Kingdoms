@@ -8,6 +8,7 @@ let lastUpdateTime = Date.now();
 const MONSTER_SPEED = 50; // Vitesse en pixels par seconde
 let listeMissiles = [];
 const monsters = {};
+const summons = {};
 
 const { Server } = require('socket.io');
 
