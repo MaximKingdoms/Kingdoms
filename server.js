@@ -510,7 +510,7 @@ function emitGlobalPositions() {
     const grid = {};
     function ensureZone(key) {
         if (!grid[key]) {
-            grid[key] = { players: [], monsters: [], missiles: [] };
+            grid[key] = { players: [], monsters: [], missiles: [], summons: [] };
         }
     }
 
