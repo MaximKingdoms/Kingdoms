@@ -91,7 +91,13 @@ socket.on('playerMoved2', (donneesPosition) => {
         if (monsters[idMonstre].playerbound === socket.id) {
             delete monsters[idMonstre]; // Supprime le monstre de l'objet global
         }
-    }     sauvegarderJoueur(players[socket.id]);
+    }
+    for (const idSummon in summons) {
+        // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
+        if (summons[idSummon].playerbound === socket.id) {
+            delete summons[idSummmon]; // Supprime le monstre de l'objet global
+        }
+    }sauvegarderJoueur(players[socket.id]);
         clearTimeout(joueursInactifs.get(socket.id));
         joueursInactifs.delete(socket.id);
     
@@ -135,6 +141,7 @@ socket.on('hitmonster', (hitdata) => {
   // 1. Tableau global pour stocker tous les missiles actifs
 
 const listeMonstres = [];
+const listeSummons = [];
   socket.on('monstre', (data) => {
     // Valider ou assigner des valeurs par défaut
     const posX = data.XY ?? 0;
@@ -155,6 +162,27 @@ const listeMonstres = [];
 
     console.log(`Monstre ' + monsters[monsterid}.class + 'ajouté !`);
 });
+  socket.on('summon', (data) => {
+    // Valider ou assigner des valeurs par défaut
+    const posX = data.XY ?? 0;
+    const posY = data.Yx ?? 0;
+
+    // 3. Création du nouvel objet missile
+    let summonid = Math.random().toString(36).substring(2, 9);
+    summons[summonid] = {
+      id: summonid,
+        x: posX,
+        y: posY,
+        power: data.hp, // Optionnel : vitesse de déplacement
+        class: data.summonclass,
+        playerbound: data.playername
+    };
+
+      // Diffuse la nouvelle position aux autres joueurs
+
+    console.log(`Summon ' + summons[summonid}.class + 'ajouté !`);
+});
+
 
 // 2. Écoute de l'événement à chaque tir
 socket.on('missile', (data) => {
@@ -229,10 +257,12 @@ listeMissiles.forEach((missile) => {
     missile.x += missile.dirX * pasCeTick;
     missile.y += missile.dirY * pasCeTick;
     missile.distanceParcourue += pasCeTick;
+    
 
     // 3. EXTINCTION LOGIQUE (Uniquement quand il a fini ses +25px bonus)
     if (missile.distanceParcourue >= missile.distanceMaximale) {
         console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
+      
         // Il meurt ici (non ajouté aux survivants)
     } else {
         // Le missile est toujours en transit, il survit pour le prochain tick
@@ -244,6 +274,7 @@ listeMissiles.forEach((missile) => {
 listeMissiles = survivantsMissiles;
 
 const playersArray = Object.values(players);
+const monstersArray = Object.values(monsters)
 const step = 2.4;
         
 Object.values(monsters).forEach(monster => {
@@ -332,6 +363,73 @@ Object.values(monsters).forEach(monster => {
         }
     }
 });
+Object.values(summons).forEach(summon => {
+    // Sécurité au cas où l'objet serait mal défini
+    if (!summon) return;
+    if (summon.power <= 0) return;
+
+    // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
+    const livingMonsters = monstersArray.filter(p => p.power > 0);
+    const deadPlayers2 = playersArray.filter(p => p.Currenthp <= 0);
+
+    let targetPlayer = null;
+    let isAllDead2 = livingMonsters.length === 0;
+
+    let minDistance2 = Infinity;
+
+    // 3. RECHERCHE DU mmonstre LE PLUS PROCHE : Utilisation de XY et Yx
+    monsters.forEach(p => {
+        const dist = Math.abs(summon.x - p.XY) + Math.abs(summon.y - p.Yx);
+        if (dist < minDistance) {
+            minDistance = dist;
+            targetMonster = p;
+        }
+    });
+
+    // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
+    if (!targetMonster) return;
+
+    // --- AJOUT : SUPPRESSION SI TROP LOIN (400 pixels à vol d'oiseau) ---
+    const diffX2 = summon.x - targetMonster.XY;
+    const diffY2 = summon.y - targetMonster.Yx;
+    const distanceVolOiseau2 = Math.sqrt(diffX2 * diffX2 + diffY2 * diffY2);
+
+    if (distanceVolOiseau2 > 400) {
+        io.emit('summonRemoved', { id: summon.id });
+        delete summons[summon.id]; // Supprime le monstre de la liste
+        return; // Arrête l'exécution pour ce monstre
+    }
+    // ------------------------------------------------------------------
+
+    // Coordonnées de la cible (XY et Yx)
+    const monX = (targetMonster.XY) + 25;
+    const monY = (targetMonster.Yx) + 25;
+  console.log("monX" + monX);
+
+    const distanceDetection2 = Infinity;
+    const monstrenear = minDistance2 <= distanceDetection2;
+     
+    if (summon.class === 'Gobelin') {
+        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
+            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
+            // Axe X
+            if (Math.abs(summon.x - monX) <= step) {
+                summons[summon.id].x = monX;
+            } else {
+                summons[summon.id].x += (summon.x < monX) ? step : -step;
+            }
+            
+            // Axe Y
+            if (Math.abs(summon.y - monY) <= step) {
+                summons[summon.id].y = monY;
+            } else {
+                summons[summon.id].y += (summon.y < monY) ? step : -step;
+            }
+        }
+    }
+});
+
+  
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
  emitGlobalPositions();
