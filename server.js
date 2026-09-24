@@ -426,7 +426,6 @@ Object.values(summons).forEach(summon => {
                 summons[summon.id].y += (summon.y < monY) ? step : -step;
             }
         }
-    }
 });
 
   
