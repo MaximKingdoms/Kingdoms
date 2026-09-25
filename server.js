@@ -376,27 +376,26 @@ Object.values(summons).forEach(summon => {
 
     // 1. FILTRAGE : On ne garde QUE les monstres vivants
     const livingMonsters = monstersArray.filter(p => p.power > 0);
-    if (livingMonsters.length === 0) return; // Plus aucun monstre en vie, on arrête
+    if (livingMonsters.length === 0) return; 
 
     let targetMonster = null;
     let minDistance2 = Infinity;
 
-    // 2. RECHERCHE SUR LES MONSTRES VIVANTS UNIQUEMENT
+    // 2. RECHERCHE : Utilisation de p.x et p.y pour les monstres !
     livingMonsters.forEach(p => {
-        // Sécurité au cas où XY ou Yx ne seraient pas définis sur le monstre
-        if (p.XY === undefined || p.Yx === undefined) return;
+        if (p.x === undefined || p.y === undefined) return;
 
-        const dist = Math.abs(summon.x - p.XY) + Math.abs(summon.y - p.Yx);
+        // Distance entre le summon et le monstre
+        const dist = Math.abs(summon.x - p.x) + Math.abs(summon.y - p.y);
         if (dist < minDistance2) {
             minDistance2 = dist;
             targetMonster = p;
         }
     });
 
-    // Si aucune cible valide vivante n'est trouvée, le summon ne bouge pas
     if (!targetMonster) return;
 
-    // 3. SUPPRESSION SI TROP LOIN (À vol d'oiseau)
+    // 3. Distance à vol d'oiseau (avec p.x et p.y)
     const diffX2 = summon.x - targetMonster.x;
     const diffY2 = summon.y - targetMonster.y;
     const distanceVolOiseau2 = Math.sqrt(diffX2 * diffX2 + diffY2 * diffY2);
@@ -407,12 +406,10 @@ Object.values(summons).forEach(summon => {
         return; 
     }
 
-    // 4. COORDONNÉES DE LA CIBLE CORRIGÉES
-    // On applique le décalage de 25 pixels directement pour le déplacement
-    const monX = targetMonster.x + 25;
-    const monY = targetMonster.y + 25;
+    // 4. COORDONNÉES DE LA CIBLE
+    const monX = targetMonster.x;
+    const monY = targetMonster.y;
      
-    // Sécurité au cas où step ne serait pas défini globalement
     const currentStep = typeof step !== 'undefined' ? step : (summon.speed || 2);
 
     if (summon.class === 'Gobelin') {
@@ -431,6 +428,7 @@ Object.values(summons).forEach(summon => {
         }
     }
 });
+
 
   
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
