@@ -515,13 +515,13 @@ Object.keys(summons).forEach(id => {
         const monster = monsters[id];
         if (!monster || monster.power <= 0) {
             delete monsters[id];
-        io.emit('summonRemoved', { id: id });
+        io.emit('monsterRemoved', { id: id });
             return;
         }
         // Si le monstre était lié à un joueur qui a crash / déco sans déclencher le disconnect
         if (monster.playerbound && !players[monster.playerbound]) {
             delete monsters[id];
-        io.emit('summonRemoved', { id: id });
+        io.emit('monsterRemoved', { id: id });
         }
     });
 
@@ -556,12 +556,14 @@ function resetMiniteurInactivite(socket) {
         // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
         if (monsters[idMonstre].playerbound === socket.id) {
             delete monsters[idMonstre]; // Supprime le monstre de l'objet global
+        io.emit('monsterRemoved', { id: id });
         }
     }
         for (const idSummon in summons) {
         // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
         if (summons[idSummon].playerbound === socket.id) {
             delete summons[idSummon]; // Supprime le monstre de l'objet global
+        io.emit('summonRemoved', { id: id });
         }
     }
       sauvegarderJoueur(players[socket.id]);
