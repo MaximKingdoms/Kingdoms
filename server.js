@@ -380,16 +380,16 @@ Object.values(summons).forEach(summon => {
     const livingMonsters = monstersArray.filter(p => p.power > 0);
     const deadPlayers2 = playersArray.filter(p => p.Currenthp <= 0);
 
-    let targetPlayer = null;
+    let targetMonster = null;
     let isAllDead2 = livingMonsters.length === 0;
 
     let minDistance2 = Infinity;
 
     // 3. RECHERCHE DU mmonstre LE PLUS PROCHE : Utilisation de XY et Yx
-    monsters.forEach(p => {
+    monstersArray.forEach(p => {
         const dist = Math.abs(summon.x - p.XY) + Math.abs(summon.y - p.Yx);
-        if (dist < minDistance) {
-            minDistance = dist;
+        if (dist < minDistance2) {
+            minDistance2 = dist;
             targetMonster = p;
         }
     });
