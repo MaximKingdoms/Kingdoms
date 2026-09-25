@@ -371,64 +371,92 @@ Object.values(monsters).forEach(monster => {
         }
     }
 });
-Object.values(summons).forEach(summon => {
+// 1. RECRÉATION DYNAMIQUE DU TABLEAU DES MONSTRES
+// Si monstersArray n'est pas mis à jour à chaque tick, ton Gobelin ne verra aucun monstre !
+const currentMonstersArray = typeof monstersArray !== 'undefined' ? Object.values(monsters) : Object.values(monsters);
+
+Object.keys(summons).forEach(id => {
+    // On pointe DIRECTEMENT sur l'objet de référence global pour éviter les pertes de référence
+    const summon = summons[id];
     if (!summon || summon.power <= 0) return;
 
-    // 1. FILTRAGE : On ne garde QUE les monstres vivants
-    const livingMonsters = monstersArray.filter(p => p.power > 0);
-    if (livingMonsters.length === 0) return; 
+    // 2. FILTRAGE DES MONSTRES VIVANTS
+    const livingMonsters = currentMonstersArray.filter(m => m.power > 0 || m.hp > 0);
+    
+    if (livingMonsters.length === 0) {
+        // console.log("Aucun monstre vivant sur la map. Le Gobelin attend.");
+        return; 
+    }
 
     let targetMonster = null;
-    let minDistance2 = Infinity;
+    let minDistance = Infinity;
 
-    // 2. RECHERCHE : Utilisation de p.x et p.y pour les monstres !
-    livingMonsters.forEach(p => {
-        if (p.x === undefined || p.y === undefined) return;
+    // 3. RECHERCHE DE LA CIBLE (Lecture stricte de m.x et m.y)
+    livingMonsters.forEach(m => {
+        // Gestion des deux orthographes possibles selon ton modèle (x/y ou XY/Yx)
+        const mX = m.x !== undefined ? m.x : m.XY;
+        const mY = m.y !== undefined ? m.y : m.Yx;
 
-        // Distance entre le summon et le monstre
-        const dist = Math.abs(summon.x - p.x) + Math.abs(summon.y - p.y);
-        if (dist < minDistance2) {
-            minDistance2 = dist;
-            targetMonster = p;
+        if (mX === undefined || mY === undefined) return;
+
+        const dist = Math.abs(summon.x - mX) + Math.abs(summon.y - mY);
+        if (dist < minDistance) {
+            minDistance = dist;
+            targetMonster = m;
         }
     });
 
     if (!targetMonster) return;
 
-    // 3. Distance à vol d'oiseau (avec p.x et p.y)
-    const diffX2 = summon.x - targetMonster.x;
-    const diffY2 = summon.y - targetMonster.y;
-    const distanceVolOiseau2 = Math.sqrt(diffX2 * diffX2 + diffY2 * diffY2);
+    const targetX = targetMonster.x !== undefined ? targetMonster.x : targetMonster.XY;
+    const targetY = targetMonster.y !== undefined ? targetMonster.y : targetMonster.Yx;
 
-    if (distanceVolOiseau2 > 400) {
+    // 4. SÉCURITÉ DE DISTANCE MAXIMUM
+    const diffX = summon.x - targetX;
+    const diffY = summon.y - targetY;
+    const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
+
+    if (distanceVolOiseau > 400) {
         io.emit('summonRemoved', { id: summon.id });
-        delete summons[summon.id]; 
+        delete summons[id]; 
         return; 
     }
 
-    // 4. COORDONNÉES DE LA CIBLE
-    const monX = targetMonster.x;
-    const monY = targetMonster.y;
-     
-    const currentStep = typeof step !== 'undefined' ? step : (summon.speed || 2);
+    // 5. APPLICATION DU MOUVEMENT DIRECTEMENT SUR L'OBJET GLOBAL
+    const currentStep = (typeof step !== 'undefined' && step > 0) ? step : (summon.speed || 3);
 
     if (summon.class === 'Gobelin') {
+        let moved = false;
+
         // Axe X
-        if (Math.abs(summon.x - monX) <= currentStep) {
-            summons[summon.id].x = monX;
+        if (Math.abs(summon.x - targetX) <= currentStep) {
+            if (summons[id].x !== targetX) {
+                summons[id].x = targetX;
+                moved = true;
+            }
         } else {
-            summons[summon.id].x += (summon.x < monX) ? currentStep : -currentStep;
+            summons[id].x += (summon.x < targetX) ? currentStep : -currentStep;
+            moved = true;
         }
         
         // Axe Y
-        if (Math.abs(summon.y - monY) <= currentStep) {
-            summons[summon.id].y = monY;
+        if (Math.abs(summon.y - targetY) <= currentStep) {
+            if (summons[id].y !== targetY) {
+                summons[id].y = targetY;
+                moved = true;
+            }
         } else {
-            summons[summon.id].y += (summon.y < monY) ? currentStep : -currentStep;
+            summons[id].y += (summon.y < targetY) ? currentStep : -currentStep;
+            moved = true;
+        }
+
+        // 🚨 LOG D'URGENCE : Si ce message apparaît en boucle avec des coordonnées qui CHANGENT, 
+        // le problème vient à 100% de l'ordre d'appel de tes fonctions.
+        if (moved) {
+            console.log(`[SERVEUR] Gobelin ${id} bouge de (${summon.x.toFixed(0)},${summon.y.toFixed(0)}) vers Monstre (${targetX},${targetY})`);
         }
     }
 });
-
 
   
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
