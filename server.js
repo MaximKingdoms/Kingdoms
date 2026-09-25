@@ -96,7 +96,7 @@ socket.on('playerMoved2', (donneesPosition) => {
     for (const idSummon in summons) {
         // On vérifie si le monstre appartient au joueur qui vient de se déconnecter
         if (summons[idSummon].playerbound === socket.id) {
-            delete summons[idSummmon]; // Supprime le monstre de l'objet global
+            delete summons[idSummon]; // Supprime le monstre de l'objet global
         }
     }
     sauvegarderJoueur(players[socket.id]);
