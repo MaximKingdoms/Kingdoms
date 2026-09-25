@@ -98,7 +98,8 @@ socket.on('playerMoved2', (donneesPosition) => {
         if (summons[idSummon].playerbound === socket.id) {
             delete summons[idSummmon]; // Supprime le monstre de l'objet global
         }
-    }sauvegarderJoueur(players[socket.id]);
+    }
+    sauvegarderJoueur(players[socket.id]);
         clearTimeout(joueursInactifs.get(socket.id));
         joueursInactifs.delete(socket.id);
     
@@ -134,6 +135,12 @@ socket.on('missileisdead', (data) => {
 socket.on('hitmonster', (hitdata) => {
       if (monsters[hitdata.monstername]) {
         monsters[hitdata.monstername].power = hitdata.monsterhp;
+      }
+
+  });
+socket.on('hitsummon', (hitdata) => {
+      if (summons[hitdata.monstername]) {
+        summons[hitdata.monstername].power = hitdata.monsterhp;
       }
 
   });
