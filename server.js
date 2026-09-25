@@ -397,8 +397,8 @@ Object.values(summons).forEach(summon => {
     if (!targetMonster) return;
 
     // 3. SUPPRESSION SI TROP LOIN (À vol d'oiseau)
-    const diffX2 = summon.x - targetMonster.XY;
-    const diffY2 = summon.y - targetMonster.Yx;
+    const diffX2 = summon.x - targetMonster.x;
+    const diffY2 = summon.y - targetMonster.y;
     const distanceVolOiseau2 = Math.sqrt(diffX2 * diffX2 + diffY2 * diffY2);
 
     if (distanceVolOiseau2 > 400) {
@@ -409,8 +409,8 @@ Object.values(summons).forEach(summon => {
 
     // 4. COORDONNÉES DE LA CIBLE CORRIGÉES
     // On applique le décalage de 25 pixels directement pour le déplacement
-    const monX = targetMonster.XY + 25;
-    const monY = targetMonster.Yx + 25;
+    const monX = targetMonster.x + 25;
+    const monY = targetMonster.y + 25;
      
     // Sécurité au cas où step ne serait pas défini globalement
     const currentStep = typeof step !== 'undefined' ? step : (summon.speed || 2);
