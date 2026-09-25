@@ -535,7 +535,6 @@ function emitGlobalPositions() {
             Class: p.Class,
             Strength: p.Strength
         });
-      console.log("players is at "+ p.XY);
     });
 
     // Répartir les MONSTRES dans la grille
@@ -550,7 +549,6 @@ function emitGlobalPositions() {
             hp: m.power,
             class: m.class
         });
-      console.log("monsters is at x " + m.x);
     });
     // Répartir les MONSTRES dans la grille
     Object.keys(summons).forEach(id => {
@@ -564,7 +562,6 @@ function emitGlobalPositions() {
             hp: s.power,
             class: s.class
         });
-      console.log("summons is at x " + s.x);
     });
 
     // Répartir les MISSILES dans la grille
