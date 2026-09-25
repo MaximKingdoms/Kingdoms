@@ -431,6 +431,101 @@ Object.keys(summons).forEach(id => {
   
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
+  setInterval(() => {
+    const now = Date.now();
+    const monstersArray = Object.values(monsters);
+
+    // ==========================================
+    // SÉCURITÉ 1 : NETTOYAGE STRICT DES MISSILES
+    // ==========================================
+    listeMissiles = listeMissiles.filter(missile => {
+        // Si le missile a plus de 4 secondes, on le supprime pour libérer le CPU
+        return (now - missile.createdAt < 4000);
+    });
+
+    // ==========================================
+    // SÉCURITÉ 2 : DÉPLACEMENT & NETTOYAGE DES SUMMONS
+    // ==========================================
+    Object.keys(summons).forEach(id => {
+        const summon = Array.isArray(summons) ? summons[id] : summons[id];
+        
+        // Si le summon est mort ou corrompu, on le supprime DIRECTEMENT de la RAM
+        if (!summon || summon.power <= 0 || summon.hp <= 0) {
+            delete summons[id];
+            return;
+        }
+
+        // Si le joueur qui a invoqué ce summon n'est plus en ligne, on supprime le summon
+        if (summon.playerbound && !players[summon.playerbound]) {
+            delete summons[id];
+            return;
+        }
+
+        const livingMonsters = monstersArray.filter(m => m.power > 0);
+        if (livingMonsters.length === 0) return; 
+
+        let targetMonster = null;
+        let minDistance = Infinity;
+
+        livingMonsters.forEach(m => {
+            if (m.x === undefined || m.y === undefined) return;
+            const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
+            if (dist < minDistance) {
+                minDistance = dist;
+                targetMonster = m;
+            }
+        });
+
+        if (!targetMonster) return;
+
+        const diffX = summon.x - targetMonster.x;
+        const diffY = summon.y - targetMonster.y;
+        const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
+
+        // Si le gobelin est semé (trop loin), on le supprime pour économiser le CPU
+        if (distanceVolOiseau > 400) {
+            io.emit('summonRemoved', { id: id });
+            delete summons[id]; 
+            return; 
+        }
+
+        const step = summon.speed || 4; 
+
+        if (summon.class === 'Gobelin') {
+            if (Math.abs(summon.x - targetMonster.x) <= step) {
+                summons[id].x = targetMonster.x;
+            } else {
+                summons[id].x += (summon.x < targetMonster.x) ? step : -step;
+            }
+            
+            if (Math.abs(summon.y - targetMonster.y) <= step) {
+                summons[id].y = targetMonster.y;
+            } else {
+                summons[id].y += (summon.y < targetMonster.y) ? step : -step;
+            }
+        }
+    });
+
+    // ==========================================
+    // SÉCURITÉ 3 : NETTOYAGE DES MONSTRES ORPHELINS
+    // ==========================================
+    Object.keys(monsters).forEach(id => {
+        const monster = monsters[id];
+        if (!monster || monster.power <= 0) {
+            delete monsters[id];
+            return;
+        }
+        // Si le monstre était lié à un joueur qui a crash / déco sans déclencher le disconnect
+        if (monster.playerbound && !players[monster.playerbound]) {
+            delete monsters[id];
+        }
+    });
+
+    // 3. ENVOI DES POSITIONS NETTOYÉES
+    emitGlobalPositions();
+
+}, 50);
+
  emitGlobalPositions();
 }
 
