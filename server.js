@@ -483,7 +483,7 @@ Object.keys(summons).forEach(id => {
         const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
 
         // Si le gobelin est semé (trop loin), on le supprime pour économiser le CPU
-        if (distanceVolOiseau > 400) {
+        if (distanceVolOiseau > 600) {
             io.emit('summonRemoved', { id: id });
             delete summons[id]; 
             return; 
