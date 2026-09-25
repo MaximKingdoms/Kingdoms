@@ -372,21 +372,20 @@ Object.values(monsters).forEach(monster => {
     }
 });
 Object.values(summons).forEach(summon => {
-    // Sécurité au cas où l'objet serait mal défini
-    if (!summon) return;
-    if (summon.power <= 0) return;
+    if (!summon || summon.power <= 0) return;
 
-    // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
+    // 1. FILTRAGE : On ne garde QUE les monstres vivants
     const livingMonsters = monstersArray.filter(p => p.power > 0);
-    const deadPlayers2 = playersArray.filter(p => p.Currenthp <= 0);
+    if (livingMonsters.length === 0) return; // Plus aucun monstre en vie, on arrête
 
     let targetMonster = null;
-    let isAllDead2 = livingMonsters.length === 0;
-
     let minDistance2 = Infinity;
 
-    // 3. RECHERCHE DU mmonstre LE PLUS PROCHE : Utilisation de XY et Yx
-    monstersArray.forEach(p => {
+    // 2. RECHERCHE SUR LES MONSTRES VIVANTS UNIQUEMENT
+    livingMonsters.forEach(p => {
+        // Sécurité au cas où XY ou Yx ne seraient pas définis sur le monstre
+        if (p.XY === undefined || p.Yx === undefined) return;
+
         const dist = Math.abs(summon.x - p.XY) + Math.abs(summon.y - p.Yx);
         if (dist < minDistance2) {
             minDistance2 = dist;
@@ -394,46 +393,43 @@ Object.values(summons).forEach(summon => {
         }
     });
 
-    // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
+    // Si aucune cible valide vivante n'est trouvée, le summon ne bouge pas
     if (!targetMonster) return;
 
-    // --- AJOUT : SUPPRESSION SI TROP LOIN (400 pixels à vol d'oiseau) ---
+    // 3. SUPPRESSION SI TROP LOIN (À vol d'oiseau)
     const diffX2 = summon.x - targetMonster.XY;
     const diffY2 = summon.y - targetMonster.Yx;
     const distanceVolOiseau2 = Math.sqrt(diffX2 * diffX2 + diffY2 * diffY2);
 
     if (distanceVolOiseau2 > 400) {
         io.emit('summonRemoved', { id: summon.id });
-        delete summons[summon.id]; // Supprime le monstre de la liste
-        return; // Arrête l'exécution pour ce monstre
+        delete summons[summon.id]; 
+        return; 
     }
-    // ------------------------------------------------------------------
 
-    // Coordonnées de la cible (XY et Yx)
-    const monX = (targetMonster.XY) + 25;
-    const monY = (targetMonster.Yx) + 25;
-  console.log("monX" + monX);
-
-    const distanceDetection2 = Infinity;
-    const monstrenear = minDistance2 <= distanceDetection2;
+    // 4. COORDONNÉES DE LA CIBLE CORRIGÉES
+    // On applique le décalage de 25 pixels directement pour le déplacement
+    const monX = targetMonster.XY + 25;
+    const monY = targetMonster.Yx + 25;
      
+    // Sécurité au cas où step ne serait pas défini globalement
+    const currentStep = typeof step !== 'undefined' ? step : (summon.speed || 2);
+
     if (summon.class === 'Gobelin') {
-        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
-            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
-            // Axe X
-            if (Math.abs(summon.x - monX) <= step) {
-                summons[summon.id].x = monX;
-            } else {
-                summons[summon.id].x += (summon.x < monX) ? step : -step;
-            }
-            
-            // Axe Y
-            if (Math.abs(summon.y - monY) <= step) {
-                summons[summon.id].y = monY;
-            } else {
-                summons[summon.id].y += (summon.y < monY) ? step : -step;
-            }
+        // Axe X
+        if (Math.abs(summon.x - monX) <= currentStep) {
+            summons[summon.id].x = monX;
+        } else {
+            summons[summon.id].x += (summon.x < monX) ? currentStep : -currentStep;
         }
+        
+        // Axe Y
+        if (Math.abs(summon.y - monY) <= currentStep) {
+            summons[summon.id].y = monY;
+        } else {
+            summons[summon.id].y += (summon.y < monY) ? currentStep : -currentStep;
+        }
+    }
 });
 
   
