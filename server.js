@@ -452,12 +452,14 @@ Object.keys(summons).forEach(id => {
         // Si le summon est mort ou corrompu, on le supprime DIRECTEMENT de la RAM
         if (!summon || summon.power <= 0 || summon.hp <= 0) {
             delete summons[id];
+        io.emit('summonRemoved', { id: id });
             return;
         }
 
         // Si le joueur qui a invoqué ce summon n'est plus en ligne, on supprime le summon
         if (summon.playerbound && !players[summon.playerbound]) {
             delete summons[id];
+        io.emit('summonRemoved', { id: id });
             return;
         }
 
@@ -513,11 +515,13 @@ Object.keys(summons).forEach(id => {
         const monster = monsters[id];
         if (!monster || monster.power <= 0) {
             delete monsters[id];
+        io.emit('summonRemoved', { id: id });
             return;
         }
         // Si le monstre était lié à un joueur qui a crash / déco sans déclencher le disconnect
         if (monster.playerbound && !players[monster.playerbound]) {
             delete monsters[id];
+        io.emit('summonRemoved', { id: id });
         }
     });
 
