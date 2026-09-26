@@ -222,7 +222,6 @@ socket.on('missile', (data) => {
   // 4. Écouter les mouvements du joueur en temps réel
   
 function moveMonstersServer() {
-function moveMonstersServer() {
     const survivantsMissiles = [];
         
     // --- 1. GESTION DES MISSILES ---
