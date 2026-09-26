@@ -222,240 +222,137 @@ socket.on('missile', (data) => {
   // 4. Écouter les mouvements du joueur en temps réel
   
 function moveMonstersServer() {
-const survivantsMissiles = [];
+function moveMonstersServer() {
+    const survivantsMissiles = [];
         
-// --- SUR LE SERVEUR (Dans moveMonstersServer) ---
+    // --- 1. GESTION DES MISSILES ---
+    listeMissiles.forEach((missile) => {
+        const targetx = Number(missile.targetx);
+        const targety = Number(missile.targety);
 
-listeMissiles.forEach((missile) => {
-    const targetx = Number(missile.targetx);
-    const targety = Number(missile.targety);
+        if (!missile.dirX && !missile.dirY) {
+            const diffX = targetx - missile.x;
+            const diffY = targety - missile.y;
+            const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
 
-    // 1. INITIALISATION DE LA DIAGONALE (Au premier tick du missile)
-    if (!missile.dirX && !missile.dirY) {
-        const diffX = targetx - missile.x;
-        const diffY = targety - missile.y;
+            missile.dirX = diffX / distanceOrigine;
+            missile.dirY = diffY / distanceOrigine;
+            missile.distanceMaximale = distanceOrigine + 25;
+            missile.distanceParcourue = 0;
+        }
+
+        const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
+        let pasCeTick = stepSpeed;
+        if (missile.distanceParcourue + stepSpeed >= missile.distanceMaximale) {
+            pasCeTick = missile.distanceMaximale - missile.distanceParcourue;
+        }
+
+        missile.x += missile.dirX * pasCeTick;
+        missile.y += missile.dirY * pasCeTick;
+        missile.distanceParcourue += pasCeTick;
         
-        // Calcul de la distance initiale que le missile DOIT faire
-        const distanceOrigine = Math.sqrt(diffX * diffX + diffY * diffY) || 1;
+        if (missile.distanceParcourue >= missile.distanceMaximale) {
+            console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
+        } else {
+            survivantsMissiles.push(missile);
+        }
+    });
+    listeMissiles = survivantsMissiles;
 
-        // Vecteur de direction (ligne droite pure)
-        missile.dirX = diffX / distanceOrigine;
-        missile.dirY = diffY / distanceOrigine;
+    // --- FILTRAGE AVANT LES BOUCLES (FAIT 1 SEULE FOIS POUR TOUT LE TICK) ---
+    const playersArray = Object.values(players);
+    const monstersArray = Object.values(monsters);
 
-        // 🌟 LA RECHARGE MAGIQUE : On lui donne l'autorisation de voyager 25px de plus
-        missile.distanceMaximale = distanceOrigine + 25;
-        missile.distanceParcourue = 0;
-    }
-
-    // Vitesse fixe par tick (ajustée pour tes 50ms)
-    const stepSpeed = (missile.playerclass === "ranger") ? 25 : 15;
-
-    // Calcul du pas à faire (on ne doit pas dépasser la distance max)
-    let pasCeTick = stepSpeed;
-    if (missile.distanceParcourue + stepSpeed >= missile.distanceMaximale) {
-        pasCeTick = missile.distanceMaximale - missile.distanceParcourue;
-    }
-
-    // 2. LOGIQUE DE MOUVEMENT (Avancement le long de ta ligne droite parfaite)
-    missile.x += missile.dirX * pasCeTick;
-    missile.y += missile.dirY * pasCeTick;
-    missile.distanceParcourue += pasCeTick;
-    
-
-    // 3. EXTINCTION LOGIQUE (Uniquement quand il a fini ses +25px bonus)
-    if (missile.distanceParcourue >= missile.distanceMaximale) {
-        console.log(`Missile arrivé en fin de course prolongée (+25px) : ID ${missile.id}`);
-      
-        // Il meurt ici (non ajouté aux survivants)
-    } else {
-        // Le missile est toujours en transit, il survit pour le prochain tick
-        survivantsMissiles.push(missile);
-    }
-});
-
-// On remplace l'ancienne liste par celle contenant uniquement les missiles actifs
-listeMissiles = survivantsMissiles;
-
-const playersArray = Object.values(players);
-const monstersArray = Object.values(monsters)
-const step = 2.4;
-        
-Object.values(monsters).forEach(monster => {
-    // Sécurité au cas où l'objet serait mal défini
-    if (!monster) return;
-    if (monster.power <= 0) return;
-
-    // 2. FILTRAGE : On cherche les joueurs selon vos propriétés exactes (Currenthp)
     const livingPlayers = playersArray.filter(p => p.Currenthp > 0);
     const deadPlayers = playersArray.filter(p => p.Currenthp <= 0);
+    const isAllDead = livingPlayers.length === 0;
+    const playerCandidates = isAllDead ? deadPlayers : livingPlayers;
 
-    let targetPlayer = null;
-    let isAllDead = livingPlayers.length === 0;
+    const livingMonsters = monstersArray.filter(m => m && m.power > 0);
+    const step = 2.4;
+    const MAX_DIST_SQ = 400 * 400; // 160000 (Évite le Math.sqrt)
 
-    const candidates = isAllDead ? deadPlayers : livingPlayers;
-    let minDistance = Infinity;
+    // --- 2. GESTION DES MONSTRES ---
+    monstersArray.forEach(monster => {
+        if (!monster) return;
 
-    // 3. RECHERCHE DU JOUEUR LE PLUS PROCHE : Utilisation de XY et Yx
-    candidates.forEach(p => {
-        const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
-        if (dist < minDistance) {
-            minDistance = dist;
-            targetPlayer = p;
+        // SÉCURITÉ : Si le monstre était lié à un joueur qui a crash / déco
+        if (monster.playerbound && !players[monster.playerbound]) {
+            io.emit('monsterRemoved', { id: monster.id });
+            delete monsters[monster.id];
+            return;
         }
-    });
 
-    // Si aucun joueur n'est connecté sur le serveur, le monstre ne bouge pas
-    if (!targetPlayer) return;
+        if (monster.power <= 0) return;
+        if (playerCandidates.length === 0) return;
 
-    // --- AJOUT : SUPPRESSION SI TROP LOIN (400 pixels à vol d'oiseau) ---
-    const diffX = monster.x - targetPlayer.XY;
-    const diffY = monster.y - targetPlayer.Yx;
-    const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
+        let targetPlayer = null;
+        let minDistance = Infinity;
 
-    if (distanceVolOiseau > 400) {
-        io.emit('monsterRemoved', { id: monster.id });
-        delete monsters[monster.id]; // Supprime le monstre de la liste
-        return; // Arrête l'exécution pour ce monstre
-    }
-    // ------------------------------------------------------------------
+        // Recherche (Distance Manhattan)
+        playerCandidates.forEach(p => {
+            const dist = Math.abs(monster.x - p.XY) + Math.abs(monster.y - p.Yx);
+            if (dist < minDistance) {
+                minDistance = dist;
+                targetPlayer = p;
+            }
+        });
 
-    // Coordonnées de la cible (XY et Yx)
-    const chaX = (targetPlayer.XY) + 25;
-    const chaY = (targetPlayer.Yx) + 25;
+        if (!targetPlayer) return;
 
-    const distanceDetection = Infinity;
-    const joueurnear = minDistance <= distanceDetection;
-     
-    if (monster.class === 'Gobelin') {
-        // 4. LOGIQUE DE DÉPLACEMENT : Modification via monsters[monster.id]
-        if (isAllDead) {
-            // FUITE des joueurs morts
-            if (joueurnear) {
-                if (monster.x < chaX) {
-                    monsters[monster.id].x -= step;
-                } else if (monster.x > chaX) {
-                    monsters[monster.id].x += step;
+        // Sécurité de distance max (Optimisé sans Math.sqrt)
+        const diffX = monster.x - targetPlayer.XY;
+        const diffY = monster.y - targetPlayer.Yx;
+        const distSq = (diffX * diffX) + (diffY * diffY);
+
+        if (distSq > MAX_DIST_SQ) {
+            io.emit('monsterRemoved', { id: monster.id });
+            delete monsters[monster.id];
+            return;
+        }
+
+        const chaX = targetPlayer.XY + 25;
+        const chaY = targetPlayer.Yx + 25;
+         
+        if (monster.class === 'Gobelin') {
+            if (isAllDead) {
+                // FUITE
+                monsters[monster.id].x += (monster.x < chaX) ? -step : step;
+                monsters[monster.id].y += (monster.y < chaY) ? -step : step;
+            } else {
+                // POURSUITE
+                if (Math.abs(monster.x - chaX) <= step) {
+                    monsters[monster.id].x = chaX;
                 } else {
-                    monsters[monster.id].x -= step;
+                    monsters[monster.id].x += (monster.x < chaX) ? step : -step;
                 }
                 
-                if (monster.y < chaY) {
-                    monsters[monster.id].y -= step;
-                } else if (monster.y > chaY) {
-                    monsters[monster.id].y += step;
+                if (Math.abs(monster.y - chaY) <= step) {
+                    monsters[monster.id].y = chaY;
                 } else {
-                    monsters[monster.id].y -= step;
+                    monsters[monster.id].y += (monster.y < chaY) ? step : -step;
                 }
             }
-        } else {
-            // POURSUITE du joueur vivant le plus proche (avec sécurité anti-oscillation)
-            // Axe X
-            if (Math.abs(monster.x - chaX) <= step) {
-                monsters[monster.id].x = chaX;
-            } else {
-                monsters[monster.id].x += (monster.x < chaX) ? step : -step;
-            }
-            
-            // Axe Y
-            if (Math.abs(monster.y - chaY) <= step) {
-                monsters[monster.id].y = chaY;
-            } else {
-                monsters[monster.id].y += (monster.y < chaY) ? step : -step;
-            }
-        }
-    }
-});
-// On transforme l'objet global 'monsters' en tableau pour pouvoir le filtrer et le parcourir
-
-Object.keys(summons).forEach(id => {
-    const summon = summons[id];
-    // Sécurité si le summon est mort ou indéfini
-    if (!summon || summon.power <= 0) {
-        delete summons[id];
-        return;
-    }
-
-    // FILTRAGE : On cherche uniquement les monstres vivants
-    const livingMonsters = monstersArray.filter(m => m.power > 0);
-    if (livingMonsters.length === 0) return; // Aucun monstre sur la map, le gobelin attend
-
-    let targetMonster = null;
-    let minDistance = Infinity;
-
-    // RECHERCHE DU MONSTRE LE PLUS PROCHE
-    livingMonsters.forEach(m => {
-        if (m.x === undefined || m.y === undefined) return;
-
-        // Calcul de la distance (Manhattan) entre le gobelin et le monstre
-        const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
-        if (dist < minDistance) {
-            minDistance = dist;
-            targetMonster = m;
         }
     });
 
-    if (!targetMonster) return;
-
-    // Sécurité de distance à vol d'oiseau
-    const diffX = summon.x - targetMonster.x;
-    const diffY = summon.y - targetMonster.y;
-    const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
-
-    // Si le monstre est trop loin, le summon disparaît
-    if (distanceVolOiseau > 400) {
-        io.emit('summonRemoved', { id: id });
-        delete summons[id]; 
-        return; 
-    }
-
-    // Vitesse de déplacement du Gobelin (3 pixels par tick par défaut)
-    const step = summon.speed || 3; 
-
-    if (summon.class === 'Gobelin') {
-        // Déplacement Axe X vers targetMonster.x
-        if (Math.abs(summon.x - targetMonster.x) <= step) {
-            summons[id].x = targetMonster.x;
-        } else {
-            summons[id].x += (summon.x < targetMonster.x) ? step : -step;
-        }
-        
-        // Déplacement Axe Y vers targetMonster.y
-        if (Math.abs(summon.y - targetMonster.y) <= step) {
-            summons[id].y = targetMonster.y;
-        } else {
-            summons[id].y += (summon.y < targetMonster.y) ? step : -step;
-        }
-    }
-});
-  
-// CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
-    lastUpdateTime = Date.now();
-
-    // ==========================================
-    // SÉCURITÉ 2 : DÉPLACEMENT & NETTOYAGE DES SUMMONS
-    // ==========================================
+    // --- 3. GESTION DES SUMMONS ---
     Object.keys(summons).forEach(id => {
         const summon = Array.isArray(summons) ? summons[id] : summons[id];
         
-        // Si le summon est mort ou corrompu, on le supprime DIRECTEMENT de la RAM
-        if (!summon || summon.power <= 0 || summon.hp <= 0) {
+        // Sécurité & Nettoyage immédiat (Fusionné)
+        if (!summon || summon.power <= 0 || (summon.hp !== undefined && summon.hp <= 0)) {
             delete summons[id];
-        io.emit('summonRemoved', { id: id });
+            io.emit('summonRemoved', { id: id });
             return;
         }
 
-        // Si le joueur qui a invoqué ce summon n'est plus en ligne, on supprime le summon
-        if (summon.playerbound && !players[summon.playerbound]) {
-            delete summons[id];
-        io.emit('summonRemoved', { id: id });
-            return;
-        }
-
-        if (livingMonsters.length === 0) return; 
+        if (livingMonsters.length === 0) return;
 
         let targetMonster = null;
         let minDistance = Infinity;
 
+        // RECHERCHE DU MONSTRE LE PLUS PROCHE
         livingMonsters.forEach(m => {
             if (m.x === undefined || m.y === undefined) return;
             const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
@@ -467,66 +364,46 @@ Object.keys(summons).forEach(id => {
 
         if (!targetMonster) return;
 
+        // Sécurité de distance max (Optimisé sans Math.sqrt)
         const diffX = summon.x - targetMonster.x;
         const diffY = summon.y - targetMonster.y;
-        const distanceVolOiseau = Math.sqrt(diffX * diffX + diffY * diffY);
+        const distSq = (diffX * diffX) + (diffY * diffY);
 
-        // Si le gobelin est semé (trop loin), on le supprime pour économiser le CPU
-        if (distanceVolOiseau > 600) {
+        if (distSq > MAX_DIST_SQ) {
             io.emit('summonRemoved', { id: id });
             delete summons[id]; 
             return; 
         }
 
-        const step = summon.speed || 4; 
+        const summonStep = summon.speed || 3; 
 
         if (summon.class === 'Gobelin') {
-            if (Math.abs(summon.x - targetMonster.x) <= step) {
+            // Déplacement Axe X
+            if (Math.abs(summon.x - targetMonster.x) <= summonStep) {
                 summons[id].x = targetMonster.x;
             } else {
-                summons[id].x += (summon.x < targetMonster.x) ? step : -step;
+                summons[id].x += (summon.x < targetMonster.x) ? summonStep : -summonStep;
             }
             
-            if (Math.abs(summon.y - targetMonster.y) <= step) {
+            // Déplacement Axe Y
+            if (Math.abs(summon.y - targetMonster.y) <= summonStep) {
                 summons[id].y = targetMonster.y;
             } else {
-                summons[id].y += (summon.y < targetMonster.y) ? step : -step;
+                summons[id].y += (summon.y < targetMonster.y) ? summonStep : -summonStep;
             }
         }
     });
+      
+    // Enregistrement du temps de mise à jour
+    lastUpdateTime = Date.now();
 
-    // ==========================================
-    // SÉCURITÉ 3 : NETTOYAGE DES MONSTRES ORPHELINS
-    // ==========================================
-    Object.keys(monsters).forEach(id => {
-        const monster = monsters[id];
-        if (!monster || monster.power <= 0) {
-            delete monsters[id];
-        io.emit('monsterRemoved', { id: id });
-            return;
-        }
-        // Si le monstre était lié à un joueur qui a crash / déco sans déclencher le disconnect
-        if (monster.playerbound && !players[monster.playerbound]) {
-            delete monsters[id];
-        io.emit('monsterRemoved', { id: id });
-        }
-    });
-
-    // 3. ENVOI DES POSITIONS NETTOYÉES
+    // 4. ENVOI DES POSITIONS NETTOYÉES
     emitGlobalPositions();
-
-}, 50);
-
- emitGlobalPositions();
 }
 
-  let gameInterval = null; // Variable globale pour stocker l'intervalle
+// Lancement de la boucle globale du serveur (Toutes les 50ms)
+setInterval(moveMonstersServer, 50);
 
-// Dans votre fonction de configuration/connexion :
-if (!gameInterval) { 
-    // On ne lance l'intervalle que s'il n'existe pas déjà
-    gameInterval = setInterval(moveMonstersServer, 50);
-}
 
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
 
