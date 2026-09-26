@@ -366,7 +366,6 @@ Object.values(monsters).forEach(monster => {
     }
 });
 // On transforme l'objet global 'monsters' en tableau pour pouvoir le filtrer et le parcourir
-const monstersArray = Object.values(monsters);
 
 Object.keys(summons).forEach(id => {
     const summon = summons[id];
@@ -431,17 +430,6 @@ Object.keys(summons).forEach(id => {
   
 // CORRECTION MAJEURE : On enregistre le temps ici, une fois que TOUS les monstres ont bougé
     lastUpdateTime = Date.now();
-  setInterval(() => {
-    const now = Date.now();
-    const monstersArray = Object.values(monsters);
-
-    // ==========================================
-    // SÉCURITÉ 1 : NETTOYAGE STRICT DES MISSILES
-    // ==========================================
-    listeMissiles = listeMissiles.filter(missile => {
-        // Si le missile a plus de 4 secondes, on le supprime pour libérer le CPU
-        return (now - missile.createdAt < 4000);
-    });
 
     // ==========================================
     // SÉCURITÉ 2 : DÉPLACEMENT & NETTOYAGE DES SUMMONS
@@ -463,7 +451,6 @@ Object.keys(summons).forEach(id => {
             return;
         }
 
-        const livingMonsters = monstersArray.filter(m => m.power > 0);
         if (livingMonsters.length === 0) return; 
 
         let targetMonster = null;
