@@ -558,8 +558,7 @@ function emitGlobalPositions() {
             }
         }
 
-        // Envoi exclusif au socket du joueur concerné
-        io.to(socketId).emit('globalPositions', localData);
+io.to(socketId).volatile.emit('globalPositions', localData);
     });
 }
 
