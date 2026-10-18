@@ -85,6 +85,7 @@ socket.on('playerMoved2', (donneesPosition) => {
     });
 
   // 5. Gérer la déconnexion d'un joueur
+  
   socket.on('disconnect', () => {
     console.log('Joueur déconnecté :', socket.id);
    for (const idMonstre in monsters) {
@@ -110,6 +111,12 @@ socket.on('playerMoved2', (donneesPosition) => {
     }
   });
         // Le stockage en RAM
+  socket.on('summonisdead', (summonid) => {
+            delete summons[summonid]; // Supprime le monstre de l'objet global
+  }
+  socket.on('monsterisdead', (monsterid) => {
+            delete monsters[monsterid]; // Supprime le monstre de l'objet global
+  }
   // 3. Gestion des dégâts / coups reçus
   socket.on('hitfromplayer', (hitdata) => {
     Object.values(players).forEach(player => {
