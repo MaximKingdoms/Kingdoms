@@ -200,6 +200,8 @@ socket.on('missile', (data) => {
     const posX = (data.XY) ?? 0;
     const posY = (data.Yx) ?? 0;
 
+  console.log("Missile lancé");
+
     // 3. Création du nouvel objet missile
     const nouveauMissile = {
             
