@@ -245,7 +245,7 @@ function moveMonstersServer() {
 
             missile.dirX = diffX / distanceOrigine;
             missile.dirY = diffY / distanceOrigine;
-            missile.distanceMaximale = distanceOrigine + 25;
+            missile.distanceMaximale = distanceOrigine + 50;
             missile.distanceParcourue = 0;
         }
 
