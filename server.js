@@ -319,8 +319,8 @@ function moveMonstersServer() {
             return;
         }
 
-        const chaX = targetPlayer.XY + 25;
-        const chaY = targetPlayer.Yx + 25;
+        const chaX = targetPlayer.XY;
+        const chaY = targetPlayer.Yx;
          
         if (monster.class === 'Gobelin') {
             if (isAllDead) {
