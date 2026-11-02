@@ -494,8 +494,8 @@ function emitGlobalPositions() {
         grid[key].players.push({
             id: id,
             Nomhero: p.Nomhero,
-            XY: p.XY + 25,
-            Yx: p.Yx + 25,
+            XY: p.XY,
+            Yx: p.Yx,
             Currenthp: p.Currenthp,
             Class: p.Class,
             Strength: p.Strength
