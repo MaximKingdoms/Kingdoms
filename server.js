@@ -410,7 +410,7 @@ function moveMonstersServer() {
 }
 
 // Lancement de la boucle globale du serveur (Toutes les 50ms)
-setInterval(moveMonstersServer, 50);
+setInterval(moveMonstersServer, 60);
 
 
 // 5. Boucle d'exécution du serveur (Ex: 30 fois par seconde ou ~33ms)
