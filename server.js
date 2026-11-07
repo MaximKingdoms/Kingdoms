@@ -456,14 +456,14 @@ function moveMonstersServer() {
             if (Math.abs(summon.x - targetMonster.x) <= (Math.floor(summonStep * 1.5))) {
                 summons[id].x = targetMonster.x;
             } else {
-                summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *1.5)) : Math.floor(-summonStep *1.5));
+                summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
             }
             
             // Déplacement Axe Y
             if (Math.abs(summon.y - targetMonster.y) <= (Math.floor(summonStep *1.5))) {
                 summons[id].y = targetMonster.y;
             } else {
-                summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *1.5)) : Math.floor(-summonStep *1.5));
+                summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
             }
         }
 
