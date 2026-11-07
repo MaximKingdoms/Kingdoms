@@ -486,8 +486,6 @@ Object.keys(summons).forEach(id => {
 
         listeMissiles.push(nouveauMissile);
         console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
-    }
-});
 
                       // Déplacement Axe X
             if (Math.abs(summon.x - targetMonster.x) <= Math.floor(summonStep *1.5)) {
@@ -502,7 +500,7 @@ Object.keys(summons).forEach(id => {
             } else {
                 summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
             }
-        
+    }
 
     });
       
