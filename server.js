@@ -325,7 +325,7 @@ monstersArray.forEach(monster => {
         
         // CODE DE DÉPLACEMENT 
         // Note: J'ai ajouté 'Lich' ici pour qu'elle puisse marcher (comme le Gobelin). Retirez-la si elle doit rester immobile.
-        if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(monster.class)) {
+        if (['Gobelin', 'Djinn', 'Skeleton'].includes(monster.class)) {
             if (isAllDead) {
                 // FUITE
                 if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
@@ -337,8 +337,8 @@ monstersArray.forEach(monster => {
                     monsters[monster.id].y += (monster.y < chaY) ? -step : step;
                 }
             } else {
-                // POURSUITE RAPIDE (Vitesse *1.5 pour Djinn et Squelette)
-                if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
+                // POURSUITE RAPIDE (Vitesse *1.5 pour Squelette)
+                if (monster.class === 'Skeleton') {
                     if (Math.abs(monster.x - chaX) <= Math.floor(step * 1.5)) {
                         monsters[monster.id].x = chaX;
                     } else {
@@ -381,11 +381,11 @@ monstersArray.forEach(monster => {
 
                 const nouveauMissile = {
                     id: Math.random().toString(36).substring(2, 9),
-                    x: monsters[monster.id].x + 25, 
-                    y: monsters[monster.id].y + 25,
+                    x: monsters[monster.id].x, 
+                    y: monsters[monster.id].y,
                     targetx: posX,
                     targety: posY,
-                    power: monsters[monster.id].power, 
+                    power: Math.ceil(monsters[monster.id].power / 8), 
                     playershot: monsters[monster.id],
                     playerclass: monster.class, 
                     createdAt: maintenant
@@ -452,10 +452,10 @@ Object.keys(summons).forEach(id => {
     if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(summon.class)) {
         
         // CODE DE DÉPLACEMENT des Summons (Chasse au corps-à-corps)
-        if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(summon.class)) {
+        if (['Gobelin', 'Djinn', 'Skeleton'].includes(summon.class)) {
             
-            // POURSUITE RAPIDE (Vitesse *1.5 pour Djinn et Squelette)
-            if ((summon.class === 'Djinn') || (summon.class === 'Skeleton')) {
+            // POURSUITE RAPIDE (Vitesse *1.5 pour Squelette)
+            if (summon.class === 'Skeleton') {
                 if (Math.abs(summon.x - targetX) <= Math.floor(summonStep * 1.5)) {
                     summons[id].x = targetX;
                 } else {
@@ -498,11 +498,11 @@ Object.keys(summons).forEach(id => {
 
                 const nouveauMissile = {
                     id: Math.random().toString(36).substring(2, 9),
-                    x: summons[id].x + 25,
-                    y: summons[id].y + 25,
+                    x: summons[id].x,
+                    y: summons[id].y,
                     targetx: posX,
                     targety: posY,
-                    power: summons[id].power, 
+                    power: Math.ceil((summons[id].power / 8), 
                     playershot: summons[id], // Contient l'objet de l'invocation à l'origine du tir
                     playerclass: summon.class, 
                     createdAt: maintenant
