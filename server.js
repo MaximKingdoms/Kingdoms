@@ -453,7 +453,7 @@ function moveMonstersServer() {
 
         if ((summon.class === 'Skeleton') || (summon.class === "Djinn")) {
             // Déplacement Axe X
-            if (Math.abs(summon.x - targetMonster.x) <= (Math.floor(summonStep *l.5))) {
+            if (Math.abs(summon.x - targetMonster.x) <= (Math.floor(summonStep * l.5))) {
                 summons[id].x = targetMonster.x;
             } else {
                 summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *l.5)) : Math.floor(-summonStep *l.5));
