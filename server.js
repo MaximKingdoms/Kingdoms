@@ -502,7 +502,7 @@ Object.keys(summons).forEach(id => {
                     y: summons[id].y,
                     targetx: posX,
                     targety: posY,
-                    power: Math.ceil((summons[id].power / 8), 
+                    power: Math.ceil(summons[id].power / 8), 
                     playershot: summons[id], // Contient l'objet de l'invocation à l'origine du tir
                     playerclass: summon.class, 
                     createdAt: maintenant
