@@ -326,8 +326,8 @@ function moveMonstersServer() {
             if (isAllDead) {
                 // FUITE
               if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
-                monsters[monster.id].x += (monster.x < chaX) ?  Math.floor(-step*1.5) : step;
-                monsters[monster.id].y += (monster.x < chaX) ?  Math.floor(-step*1.5) : step;
+                monsters[monster.id].x += (monster.x < chaX) ?  Math.floor(-step *1.5) : step;
+                monsters[monster.id].y += (monster.x < chaX) ?  Math.floor(-step* 1.5) : step;
               } else {
                 monsters[monster.id].x += (monster.x < chaX) ? -step : step;
                 monsters[monster.id].y += (monster.y < chaY) ? -step : step;
