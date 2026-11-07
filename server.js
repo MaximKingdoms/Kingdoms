@@ -467,7 +467,7 @@ function moveMonstersServer() {
             }
         }
 
-    if ((summon.class === 'Lich') || (summon.class === 'Djinn)) {
+    if ((summon.class === 'Lich') || (summon.class === 'Djinn')) {
     // Valider ou assigner des valeurs par défaut
     const posX = (targetmonster.x) ?? 0;
     const posY = (targetmonster.y) ?? 0;
