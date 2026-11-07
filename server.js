@@ -265,9 +265,7 @@ function moveMonstersServer() {
             survivantsMissiles.push(missile);
         }
     });
-    listeMissiles = survivantsMissiles;
-
-// --- FILTRAGE AVANT LES BOUCLES (FAIT 1 SEULE FOIS POUR TOUT LE TICK) ---
+    listeMissiles = survivantsMissiles;// --- FILTRAGE AVANT LES BOUCLES (FAIT 1 SEULE FOIS POUR TOUT LE TICK) ---
 const playersArray = Object.values(players);
 const monstersArray = Object.values(monsters);
 
@@ -322,22 +320,24 @@ monstersArray.forEach(monster => {
     const chaX = targetPlayer.XY + 25;
     const chaY = targetPlayer.Yx + 25;
      
-    // 1. Entrée triée : On accepte le Gobelin, le Djinn, le Squelette ET la Lich
+    // 1. Entrée : On traite uniquement nos 4 types de monstres
     if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(monster.class)) {
         
-        // CODE DE DÉPLACEMENT (Uniquement pour Gobelin, Djinn, Skeleton)
-        if (['Gobelin', 'Djinn', 'Skeleton'].includes(monster.class)) {
+        // CODE DE DÉPLACEMENT 
+        // Note: J'ai ajouté 'Lich' ici pour qu'elle puisse marcher (comme le Gobelin). Retirez-la si elle doit rester immobile.
+        if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(monster.class)) {
             if (isAllDead) {
                 // FUITE
                 if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
                     monsters[monster.id].x += (monster.x < chaX) ? Math.floor(-step * 1.5) : step;
-                    monsters[monster.id].y += (monster.x < chaX) ? Math.floor(-step * 1.5) : step;
+                    // CORRECTION : Prise en compte de chaY et monster.y sur l'axe Y
+                    monsters[monster.id].y += (monster.y < chaY) ? Math.floor(-step * 1.5) : step;
                 } else {
                     monsters[monster.id].x += (monster.x < chaX) ? -step : step;
                     monsters[monster.id].y += (monster.y < chaY) ? -step : step;
                 }
             } else {
-                // POURSUITE (Vitesse rapide *1.5 pour Djinn et Skeleton)
+                // POURSUITE RAPIDE (Vitesse *1.5 pour Djinn et Squelette)
                 if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
                     if (Math.abs(monster.x - chaX) <= Math.floor(step * 1.5)) {
                         monsters[monster.id].x = chaX;
@@ -350,7 +350,7 @@ monstersArray.forEach(monster => {
                     } else {
                         monsters[monster.id].y += (monster.y < chaY) ? Math.floor(step * 1.5) : Math.floor(-step * 1.5);
                     }
-                } else { // POURSUITE STANDARD (Gobelin)
+                } else { // POURSUITE STANDARD (Gobelin et Lich)
                     if (Math.abs(monster.x - chaX) <= step) {
                         monsters[monster.id].x = chaX;
                     } else {
@@ -368,47 +368,59 @@ monstersArray.forEach(monster => {
 
         // CODE DES MISSILES (Pour Lich et Djinn)
         if ((monster.class === 'Lich') || (monster.class === 'Djinn')) {
-            // CORRECTION : Utilisation de .XY et .Yx pour cibler correctement le joueur
-            const posX = targetPlayer?.XY ?? 0;
-            const posY = targetPlayer?.Yx ?? 0;
+            
+            // OPTIMISATION ANTI-SPAM : Ne tire que si le monstre n'a pas tiré récemment (ex: toutes le 1.5 seconde)
+            const maintenant = Date.now();
+            if (!monster.dernierTir || maintenant - monster.dernierTir > 1500) {
+                monster.dernierTir = maintenant; // On enregistre le moment du tir
 
-            console.log("Missile lancé");
+                const posX = targetPlayer?.XY ?? 0;
+                const posY = targetPlayer?.Yx ?? 0;
 
-            const nouveauMissile = {
-                id: Math.random().toString(36).substring(2, 9),
-                x: monsters[monster.id].x + 25, 
-                y: monsters[monster.id].y + 25,
-                targetx: posX,
-                targety: posY,
-                power: monsters[monster.id].power, 
-                playershot: monsters[monster.id],
-                playerclass: monster.class, // Remplacé par monster.class en minuscules pour correspondre à vos tests
-                createdAt: Date.now()
-            };
+                console.log(`${monster.class} lance un missile !`);
 
-            listeMissiles.push(nouveauMissile);
-            console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+                const nouveauMissile = {
+                    id: Math.random().toString(36).substring(2, 9),
+                    x: monsters[monster.id].x + 25, 
+                    y: monsters[monster.id].y + 25,
+                    targetx: posX,
+                    targety: posY,
+                    power: monsters[monster.id].power, 
+                    playershot: monsters[monster.id],
+                    playerclass: monster.class, 
+                    createdAt: maintenant
+                };
+
+                listeMissiles.push(nouveauMissile);
+            }
         }
     }
 });
-
 // --- 3. GESTION DES SUMMONS ---
 Object.keys(summons).forEach(id => {
-    const summon = summons[id]; // Simplifié ici
+    const summon = summons[id];
     
-    // Sécurité & Nettoyage immédiat
+    // SÉCURITÉ : Nettoyage immédiat si la summon n'existe plus ou est morte
     if (!summon || summon.power <= 0 || (summon.hp !== undefined && summon.hp <= 0)) {
         delete summons[id];
         io.emit('summonRemoved', { id: id });
         return;
     }
 
+    // SÉCURITÉ : Si la summon était liée à un joueur qui a déco
+    if (summon.playerbound && !players[summon.playerbound]) {
+        io.emit('summonRemoved', { id: id });
+        delete summons[id];
+        return;
+    }
+
+    // S'il n'y a plus aucun monstre vivant, les summons attendent sur place
     if (livingMonsters.length === 0) return;
 
     let targetMonster = null;
     let minDistance = Infinity;
 
-    // RECHERCHE DU MONSTRE LE PLUS PROCHE
+    // RECHERCHE DU MONSTRE LE PLUS PROCHE (Distance Manhattan)
     livingMonsters.forEach(m => {
         if (m.x === undefined || m.y === undefined) return;
         const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
@@ -419,8 +431,8 @@ Object.keys(summons).forEach(id => {
     });
 
     if (!targetMonster) return;
-  
-    // Sécurité de distance max (Optimisé sans Math.sqrt)
+
+    // Sécurité de distance max par rapport à sa cible
     const diffX = summon.x - targetMonster.x;
     const diffY = summon.y - targetMonster.y;
     const distSq = (diffX * diffX) + (diffY * diffY);
@@ -431,77 +443,76 @@ Object.keys(summons).forEach(id => {
         return; 
     }
 
-    const summonStep = summon.speed || 3; 
+    // Ajustement de la vitesse de la summon (vitesse de base 'step' ou sa propre statistique)
+    const summonStep = summon.speed || step; 
+    const targetX = targetMonster.x + 25;
+    const targetY = targetMonster.y + 25;
 
-    // GOBELIN
-    if (summon.class === 'Gobelin') {
-        if (Math.abs(summon.x - targetMonster.x) <= summonStep) {
-            summons[id].x = targetMonster.x;
-        } else {
-            summons[id].x += (summon.x < targetMonster.x) ? summonStep : -summonStep;
-        }
+    // Entrée triée : On traite uniquement les classes connues
+    if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(summon.class)) {
         
-        if (Math.abs(summon.y - targetMonster.y) <= summonStep) {
-            summons[id].y = targetMonster.y;
-        } else {
-            summons[id].y += (summon.y < targetMonster.y) ? summonStep : -summonStep;
-        }
-    }
-
-    // SQUELETTE & DJINN
-    if ((summon.class === 'Skeleton') || (summon.class === "Djinn")) {
-        if (Math.abs(summon.x - targetMonster.x) <= (Math.floor(summonStep * 1.5))) {
-            summons[id].x = targetMonster.x;
-        } else {
-            summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep * 1.5) : Math.floor(-summonStep * 1.5);
-        }
-        
-        if (Math.abs(summon.y - targetMonster.y) <= (Math.floor(summonStep * 1.5))) {
-            summons[id].y = targetMonster.y;
-        } else {
-            summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep * 1.5) : Math.floor(-summonStep * 1.5);
-        }
-    }
-
-    // INTERCEPTION TIR DE MISSILE (Lich & Djinn)
-    if ((summon.class === 'Lich') || (summon.class === 'Djinn')) {
-        // Correction : targetMonster avec un M majuscule
-        const posX = targetMonster.x ?? 0;
-        const posY = targetMonster.y ?? 0;
-
-        console.log("Missile lancé");
-
-        const nouveauMissile = {
-            id: Math.random().toString(36).substring(2, 9), 
-            x: summons[id].x + 25,
-            y: summons[id].y + 25,
-            targetx: posX,
-            targety: posY,
-            power: summons[id].power, 
-            playershot: summons[id],
-            playerclass: summons[id].class, // Remplacé par .class (minuscule) au cas où
-            createdAt: Date.now()
-        };
-
-        listeMissiles.push(nouveauMissile);
-        console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
-
-                      // Déplacement Axe X
-            if (Math.abs(summon.x - targetMonster.x) <= Math.floor(summonStep *1.5)) {
-                summons[id].x = targetMonster.x;
-            } else {
-                summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
-            }
+        // CODE DE DÉPLACEMENT des Summons (Chasse au corps-à-corps)
+        if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(summon.class)) {
             
-            // Déplacement Axe Y
-            if (Math.abs(summon.y - targetMonster.y) <= Math.floor(summonStep *1.5)) {
-                summons[id].y = targetMonster.y;
-            } else {
-                summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
+            // POURSUITE RAPIDE (Vitesse *1.5 pour Djinn et Squelette)
+            if ((summon.class === 'Djinn') || (summon.class === 'Skeleton')) {
+                if (Math.abs(summon.x - targetX) <= Math.floor(summonStep * 1.5)) {
+                    summons[id].x = targetX;
+                } else {
+                    summons[id].x += (summon.x < targetX) ? Math.floor(summonStep * 1.5) : Math.floor(-summonStep * 1.5);
+                }
+                
+                if (Math.abs(summon.y - targetY) <= Math.floor(summonStep * 1.5)) {
+                    summons[id].y = targetY;
+                } else {
+                    summons[id].y += (summon.y < targetY) ? Math.floor(summonStep * 1.5) : Math.floor(-summonStep * 1.5);
+                }
+            } else { // POURSUITE STANDARD (Gobelin et Lich)
+                if (Math.abs(summon.x - targetX) <= summonStep) {
+                    summons[id].x = targetX;
+                } else {
+                    summons[id].x += (summon.x < targetX) ? summonStep : -summonStep;
+                }
+                
+                if (Math.abs(summon.y - targetY) <= summonStep) {
+                    summons[id].y = targetY;
+                } else {
+                    summons[id].y += (summon.y < targetY) ? summonStep : -summonStep;
+                }
             }
-    }
+        }
 
-    });
+        // CODE DES MISSILES pour les Summons (Lich et Djinn)
+        if ((summon.class === 'Lich') || (summon.class === 'Djinn')) {
+            
+            // ANTI-SPAM : Cooldown de 1.5 seconde entre chaque tir
+            const maintenant = Date.now();
+            if (!summon.dernierTir || maintenant - summon.dernierTir > 1500) {
+                summon.dernierTir = maintenant;
+
+                // Ici on lit bien .x et .y car la cible est un monstre
+                const posX = targetMonster.x;
+                const posY = targetMonster.y;
+
+                console.log(`Summon ${summon.class} lance un missile sur un monstre !`);
+
+                const nouveauMissile = {
+                    id: Math.random().toString(36).substring(2, 9),
+                    x: summons[id].x + 25,
+                    y: summons[id].y + 25,
+                    targetx: posX,
+                    targety: posY,
+                    power: summons[id].power, 
+                    playershot: summons[id], // Contient l'objet de l'invocation à l'origine du tir
+                    playerclass: summon.class, 
+                    createdAt: maintenant
+                };
+
+                listeMissiles.push(nouveauMissile);
+            }
+        }
+    }
+});
       
     // Enregistrement du temps de mise à jour
     lastUpdateTime = Date.now();
