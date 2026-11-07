@@ -510,7 +510,7 @@ function moveMonstersServer() {
             } else {
                 summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *1.5) : Math.floor(-summonStep *1.5);
             }
-        }
+        
 
     });
       
