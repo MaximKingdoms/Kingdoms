@@ -322,13 +322,31 @@ function moveMonstersServer() {
         const chaX = targetPlayer.XY +25;
         const chaY = targetPlayer.Yx +25;
          
-        if (monster.class === 'Gobelin') {
+        if (((monster.class === 'Gobelin') || (monster.class === 'Djinn')) || (monster.class === 'Skeleton.png')) {
             if (isAllDead) {
                 // FUITE
+              if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
+                monsters[monster.id].x += Math.floor((monster.x < chaX) ? -step*1.5) : step;
+                monsters[monster.id].y += Math.floor((monster.x < chaX) ? -step*1.5) : step;
+              } else {
                 monsters[monster.id].x += (monster.x < chaX) ? -step : step;
                 monsters[monster.id].y += (monster.y < chaY) ? -step : step;
+            
+              }
             } else {
-                // POURSUITE
+              if ((monster.class === 'Djinn') || (monster.class === 'Skeleton')) {
+                if (Math.abs(monster.x - chaX) <= Math.floor(step*1.5)) {
+                    monsters[monster.id].x = chaX;
+                } else {
+                    monsters[monster.id].x += (monster.x < chaX) ? Math.floor(step*1.5)) : Math.floor(-step*1.5));
+                }
+                
+                if (Math.abs(monster.y - chaY) <= Math.floor(step*1.5))) {
+                    monsters[monster.id].y = chaY;
+                } else {
+                    monsters[monster.id].y += (monster.y < chaY) ? Math.floor(step*1.5)) : Math.floor(-step*1.5));
+                }
+              } else {// POURSUITE
                 if (Math.abs(monster.x - chaX) <= step) {
                     monsters[monster.id].x = chaX;
                 } else {
@@ -340,7 +358,38 @@ function moveMonstersServer() {
                 } else {
                     monsters[monster.id].y += (monster.y < chaY) ? step : -step;
                 }
+              }
             }
+              if ((monster.class === 'Lich') || (monster.class === 'Djinn)) {
+    // Valider ou assigner des valeurs par défaut
+    const posX = (targetPlayer.x) ?? 0;
+    const posY = (targetPlayer.y) ?? 0;
+
+  console.log("Missile lancé");
+
+    // 3. Création du nouvel objet missile
+    const nouveauMissile = {
+            
+        id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
+        x: monsters[id].x +25,
+        y: monsters[id].y +25,
+        targetx: posX,
+        targety: posY,
+        power: monsters[id].power, // Optionnel : vitesse de déplacement
+        playershot: monsters[id],
+        playerclass: monsters[id].Class,
+        createdAt: Date.now()
+     
+    
+    };
+
+
+    // 4. Ajout du missile dans le tableau
+    listeMissiles.push(nouveauMissile);
+
+    console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+                    }
+
         }
     });
 
@@ -371,6 +420,7 @@ function moveMonstersServer() {
         });
 
         if (!targetMonster) return;
+      
 
         // Sécurité de distance max (Optimisé sans Math.sqrt)
         const diffX = summon.x - targetMonster.x;
@@ -400,6 +450,68 @@ function moveMonstersServer() {
                 summons[id].y += (summon.y < targetMonster.y) ? summonStep : -summonStep;
             }
         }
+
+        if ((summon.class === 'Skeleton') || (summon.class === "Djinn")) {
+            // Déplacement Axe X
+            if (Math.abs(summon.x - targetMonster.x) <= Math.floor(summonStep *l.5)) {
+                summons[id].x = targetMonster.x;
+            } else {
+                summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *l.5)) : Math.floor(-summonStep *l.5));
+            }
+            
+            // Déplacement Axe Y
+            if (Math.abs(summon.y - targetMonster.y) <= Math.floor(summonStep *l.5))) {
+                summons[id].y = targetMonster.y;
+            } else {
+                summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *l.5)) : Math.floor(-summonStep *l.5));
+            }
+        }
+
+    if ((summon.class === 'Lich') || (summon.class === 'Djinn)) {
+    // Valider ou assigner des valeurs par défaut
+    const posX = (targetmonster.x) ?? 0;
+    const posY = (targetmonster.y) ?? 0;
+
+  console.log("Missile lancé");
+
+    // 3. Création du nouvel objet missile
+    const nouveauMissile = {
+            
+        id: Math.random().toString(36).substring(2, 9), // Identifiant unique utile pour le nettoyage
+        x: summons[id].x +25,
+        y: summons[id].y +25,
+        targetx: posX,
+        targety: posY,
+        power: summons[id].power, // Optionnel : vitesse de déplacement
+        playershot: summons[id],
+        playerclass: summons[id].Class,
+        createdAt: Date.now()
+     
+    
+    };
+
+
+    // 4. Ajout du missile dans le tableau
+    listeMissiles.push(nouveauMissile);
+
+    console.log(`Missile ajouté ! Total en cours : ${listeMissiles.length}`);
+                    }
+
+                      // Déplacement Axe X
+            if (Math.abs(summon.x - targetMonster.x) <= Math.floor(summonStep *l.5)) {
+                summons[id].x = targetMonster.x;
+            } else {
+                summons[id].x += (summon.x < targetMonster.x) ? Math.floor(summonStep *l.5)) : Math.floor(-summonStep *l.5));
+            }
+            
+            // Déplacement Axe Y
+            if (Math.abs(summon.y - targetMonster.y) <= Math.floor(summonStep *l.5))) {
+                summons[id].y = targetMonster.y;
+            } else {
+                summons[id].y += (summon.y < targetMonster.y) ? Math.floor(summonStep *l.5)) : Math.floor(-summonStep *l.5));
+            }
+        }
+
     });
       
     // Enregistrement du temps de mise à jour
