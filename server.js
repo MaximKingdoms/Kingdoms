@@ -360,7 +360,7 @@ function moveMonstersServer() {
                 }
               }
             }
-              if ((monster.class === 'Lich') || (monster.class === 'Djinn)) {
+              if ((monster.class === 'Lich') || (monster.class === 'Djinn')) {
     // Valider ou assigner des valeurs par défaut
     const posX = (targetPlayer.x) ?? 0;
     const posY = (targetPlayer.y) ?? 0;
