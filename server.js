@@ -338,13 +338,13 @@ function moveMonstersServer() {
                 if (Math.abs(monster.x - chaX) <= Math.floor(step*1.5)) {
                     monsters[monster.id].x = chaX;
                 } else {
-                    monsters[monster.id].x += (monster.x < chaX) ? Math.floor(step*1.5)) : Math.floor(-step*1.5));
+                    monsters[monster.id].x += (monster.x < chaX) ? Math.floor(step*1.5) : Math.floor(-step*1.5);
                 }
                 
-                if (Math.abs(monster.y - chaY) <= Math.floor(step*1.5))) {
+                if (Math.abs(monster.y - chaY) <= Math.floor(step*1.5) {
                     monsters[monster.id].y = chaY;
                 } else {
-                    monsters[monster.id].y += (monster.y < chaY) ? Math.floor(step*1.5)) : Math.floor(-step*1.5));
+                    monsters[monster.id].y += (monster.y < chaY) ? Math.floor(step*1.5) : Math.floor(-step*1.5);
                 }
               } else {// POURSUITE
                 if (Math.abs(monster.x - chaX) <= step) {
