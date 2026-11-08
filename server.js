@@ -423,6 +423,11 @@ Object.keys(summons).forEach(id => {
     // RECHERCHE DU MONSTRE LE PLUS PROCHE (Distance Manhattan)
     livingMonsters.forEach(m => {
         if (m.x === undefined || m.y === undefined) return;
+        
+        // CORRECTION : Ignorer la cible si c'est un joueur ou une summon
+        // (Adaptez les clés selon les propriétés uniques de votre joueur, ex: m.isPlayer, m.socketId, m.type === 'player')
+        if (m.isPlayer || m.type === 'player' || m.id === summon.ownerId) return;
+
         const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
         if (dist < minDistance) {
             minDistance = dist;
