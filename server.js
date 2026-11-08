@@ -415,9 +415,12 @@ Object.keys(summons).forEach(id => {
     }
 
     // S'il n'y a plus aucun monstre vivant, les summons attendent sur place
-    if (livingMonsters.length === 0) return;
-
     let targetMonster = null;
+  if (livingMonsters.length === 0) {targetMonster = null;} else {
+    
+  
+  if (livingMonsters.length === 0) return;
+
     let minDistance = Infinity;
 
     // RECHERCHE DU MONSTRE LE PLUS PROCHE (Distance Manhattan)
@@ -426,7 +429,6 @@ Object.keys(summons).forEach(id => {
         
         // CORRECTION : Ignorer la cible si c'est un joueur ou une summon
         // (Adaptez les clés selon les propriétés uniques de votre joueur, ex: m.isPlayer, m.socketId, m.type === 'player')
-        if (m.isPlayer || m.type === 'player' || m.id === summon.ownerId) return;
 
         const dist = Math.abs(summon.x - m.x) + Math.abs(summon.y - m.y);
         if (dist < minDistance) {
@@ -516,6 +518,7 @@ Object.keys(summons).forEach(id => {
                 listeMissiles.push(nouveauMissile);
             }
         }
+    }
     }
 });
       
