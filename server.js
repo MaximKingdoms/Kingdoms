@@ -386,7 +386,7 @@ monstersArray.forEach(monster => {
                     targetx: posX +25,
                     targety: posY +25,
                     power: Math.ceil(monsters[monster.id].power / 8), 
-                    playershot: monsters[monster.id],
+                    playershot: monster.id,
                     playerclass: monster.class, 
                     createdAt: maintenant
                 };
