@@ -440,8 +440,8 @@ Object.keys(summons).forEach(id => {
     if (!targetMonster) return;
 
     // Sécurité de distance max par rapport à sa cible
-    const diffX = summon.x - targetMonster.x;
-    const diffY = summon.y - targetMonster.y;
+    const diffX = summon.x - (targetMonster.x);
+    const diffY = summon.y - (targetMonster.y);
     const distSq = (diffX * diffX) + (diffY * diffY);
 
     if (distSq > MAX_DIST_SQ) {
@@ -452,8 +452,8 @@ Object.keys(summons).forEach(id => {
 
     // Ajustement de la vitesse de la summon (vitesse de base 'step' ou sa propre statistique)
     const summonStep = summon.speed || step; 
-    const targetX = targetMonster.x + 25;
-    const targetY = targetMonster.y + 25;
+    const targetX = targetMonster.x;
+    const targetY = targetMonster.y;
 
     // Entrée triée : On traite uniquement les classes connues
     if (['Gobelin', 'Djinn', 'Skeleton', 'Lich'].includes(summon.class)) {
