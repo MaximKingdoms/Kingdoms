@@ -201,6 +201,7 @@ socket.on('missile', (data) => {
     const posY = (data.Yx) ?? 0;
 
   console.log("Missile lancé");
+  console.log("2. Serveur reçoit missile :", data, "Joueur :", players[data.id]);
 
     // 3. Création du nouvel objet missile
     const nouveauMissile = {
