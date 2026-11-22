@@ -663,7 +663,8 @@ function emitGlobalPositions() {
             targety: missile.targety,
             playerclass: missile.playerclass,
             playershot: missile.playershot,
-            power: missile.power
+            power: missile.power,
+            typeofmissile: missile.typeofmissile
         });
     });
 
